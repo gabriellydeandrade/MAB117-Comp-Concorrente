@@ -6,14 +6,24 @@
 #define TAMVETOR 11
 
 typedef struct {
-    int vetor[TAMVETOR];
+    int *vetor;
     int posicaoInicialVetor;
     int posicaoFinalVetor;
 } threadArgs;
 
 void *threadIncremento(void * arg) {
-    // Incrementar +1 no vetor
+    threadArgs *args = (threadArgs *) arg;
 
+//    printf("Valor do vetor na posicao %d", args->vetor[2]);
+
+    for (int i=args->posicaoInicialVetor; i<=args->posicaoFinalVetor; i++){
+//        printf("posicao vetor %d, vetor antes do incremento %d \n", i, args->vetor[i]);
+        args->vetor[i] = args->vetor[i] + 1;
+
+//        printf("posicao vetor %d, vetor DEPOIS do incremento %d \n", i, args->vetor[i]);
+    }
+
+    free(arg);
     pthread_exit(NULL);
 }
 
@@ -29,10 +39,10 @@ int main() {
 
     // Determina a quantidade de tasks a serem distribuídas para cada thread
 
-    int quociente = TAMVETOR / NTHREADS;
-    int resto = TAMVETOR % NTHREADS;
+    int qtdTasksThread1 = TAMVETOR / NTHREADS;
+    int qtdTasksThread2 = qtdTasksThread1 + (TAMVETOR % NTHREADS);
 
-    printf("Quantidade de tasks nas threads: %d e %d \n", quociente, quociente+resto);
+    printf("Quantidade de tasks a serem atribuídas por threads: %d e %d \n", qtdTasksThread1, qtdTasksThread2);
 
     threadArgs *arg;
 
@@ -40,13 +50,30 @@ int main() {
     for (int i=0; i<NTHREADS; i++){
 
         arg = malloc(sizeof(threadArgs));
-        arg->vetor = {1,2, 3};
-        arg->posicaoInicialVetor = 1;
+        if (!arg) {
+            printf("Erro ao alocar memória\n");
+            exit(1);
+        }
 
-        printf("Valor da struct %d ", arg->vetor);
+        arg->vetor = vetor;
 
-        pthread_create(&threadID[i], NULL, threadIncremento, NULL);
+        if (i==0){
+            arg->posicaoInicialVetor = 0;
+            arg->posicaoFinalVetor = qtdTasksThread1-1;
+        } else {
+            arg->posicaoInicialVetor = qtdTasksThread1;
+            arg->posicaoFinalVetor = TAMVETOR-1;
+        }
+
+        pthread_create(&threadID[i], NULL, threadIncremento, (void *) arg);
     }
+
+    printf("========= VALORES FINAIS ========= \n\n");
+    for (int i=0; i < TAMVETOR; i++){
+        printf("Valor final do vetor na posição %d: %d \n", i, vetor[i]);
+    }
+
+    printf("\n");
 
     pthread_exit(NULL);
 
