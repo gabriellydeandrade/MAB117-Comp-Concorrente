@@ -14,13 +14,8 @@ typedef struct {
 void *threadIncremento(void * arg) {
     threadArgs *args = (threadArgs *) arg;
 
-//    printf("Valor do vetor na posicao %d", args->vetor[2]);
-
     for (int i=args->posicaoInicialVetor; i<=args->posicaoFinalVetor; i++){
-//        printf("posicao vetor %d, vetor antes do incremento %d \n", i, args->vetor[i]);
-        args->vetor[i] = args->vetor[i] + 1;
-
-//        printf("posicao vetor %d, vetor DEPOIS do incremento %d \n", i, args->vetor[i]);
+        ++args->vetor[i];
     }
 
     free(arg);
@@ -42,7 +37,7 @@ int main() {
     int qtdTasksThread1 = TAMVETOR / NTHREADS;
     int qtdTasksThread2 = qtdTasksThread1 + (TAMVETOR % NTHREADS);
 
-    printf("Quantidade de tasks a serem atribuídas por threads: %d e %d \n", qtdTasksThread1, qtdTasksThread2);
+    printf("Quantidade de tasks a serem atribuídas por threads: %d e %d \n\n", qtdTasksThread1, qtdTasksThread2);
 
     threadArgs *arg;
 
@@ -66,6 +61,12 @@ int main() {
         }
 
         pthread_create(&threadID[i], NULL, threadIncremento, (void *) arg);
+    }
+
+    // Aguarda a execução de cada uma das threads
+
+    for (int i=0; i<NTHREADS; i++){
+        pthread_join(threadID[i], NULL);
     }
 
     printf("========= VALORES FINAIS ========= \n\n");
