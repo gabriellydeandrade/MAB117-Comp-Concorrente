@@ -48,9 +48,7 @@ int main() {
     // Determina a quantidade de tasks a serem distribuídas para cada thread
 
     int qtdTasksThread1 = tamanhoVetor / NTHREADS;
-    // int qtdTasksThread2 = qtdTasksThread1 + (tamanhoVetor % NTHREADS);
-    // printf("Quantidade de tasks a serem atribuídas por threads: %d e %d \n\n", qtdTasksThread1, qtdTasksThread2);
-
+    
     for (int i=0; i<NTHREADS; i++){
 
         arg = malloc(sizeof(threadArgs));
