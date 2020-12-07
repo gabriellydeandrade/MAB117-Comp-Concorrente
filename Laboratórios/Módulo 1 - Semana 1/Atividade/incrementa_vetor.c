@@ -19,8 +19,6 @@ typedef struct {
 void *threadIncremento(void * arg) {
     threadArgs *args = (threadArgs *) arg;
 
-    printf("argumenentos %d %d \n", args->posicaoInicialVetor, args->posicaoFinalVetor);
-
     for (int i=args->posicaoInicialVetor; i<=args->posicaoFinalVetor; i++){
         ++args->vetor[i];
     }
