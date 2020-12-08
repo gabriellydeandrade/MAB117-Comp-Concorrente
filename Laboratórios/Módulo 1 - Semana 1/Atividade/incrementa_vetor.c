@@ -102,6 +102,4 @@ int main() {
 
     printf("\n");
 
-    pthread_exit(NULL);
-
 }
