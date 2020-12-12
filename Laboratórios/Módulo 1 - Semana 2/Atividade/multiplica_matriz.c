@@ -11,10 +11,24 @@ void inicializa_matriz(int dimensao);
 void imprime_resultado(int dimensao);
 void libera_memoria();
 
-float *matriz, *vetor, *resultado;
+float *matriz_1, *matriz_2, *matriz_resultante;
 
 
-int main(int argc, char* argv[]){
+int main(int argc, char *argv[]) {
+
+    /*
+        PARÂMETROS
+        Recebe a dimensão da matriz. Por convenção estamos assumindo que a matriz é quadrada.
+
+        DESCRIÇÃO
+        Calcula a multiplicação da matriz de forma concorrente.
+
+        VALOR RETORNADO
+        Matriz resultante de dimensão N recebida por parâmetro.
+
+    */
+
+
     int dimensao_matriz;
 
     if (argc < 2) {
@@ -28,11 +42,14 @@ int main(int argc, char* argv[]){
 
     inicializa_matriz(dimensao_matriz);
 
-    // multiplicação da matriz pelo vetor (concorrência, exploração CPU Bound)
+    // Trecho do processamento que poderá ser feito de forma concorrente
 
-    for (int linha = 0; linha<dimensao_matriz; linha++){
-        for (int coluna = 0; coluna < dimensao_matriz; coluna++){
-            resultado[linha] += matriz[linha * dimensao_matriz + coluna] * vetor[coluna];
+    for (int linha = 0; linha < dimensao_matriz; linha++) {
+        for (int coluna = 0; coluna < dimensao_matriz; coluna++) {
+            for (int i = 0; i < dimensao_matriz; i++) {
+                matriz_resultante[linha * dimensao_matriz + coluna] +=
+                        matriz_1[linha * dimensao_matriz + i] * matriz_2[i * dimensao_matriz + coluna];
+            }
         }
     }
 
@@ -43,59 +60,63 @@ int main(int argc, char* argv[]){
     return 0;
 }
 
-void aloca_memoria(int dimensao){
-    matriz = (float *) malloc(sizeof(float) * dimensao * dimensao);
-    if (!matriz){
-        printf("ERRO; não foi possível alocar memória para a matriz \n");
+void aloca_memoria(int dimensao) {
+    matriz_1 = (float *) malloc(sizeof(float) * dimensao * dimensao);
+    if (!matriz_1) {
+        printf("ERRO; não foi possível alocar memória para a matriz_1 \n");
         exit(1);
     }
-    vetor = (float *) malloc(sizeof(float) * dimensao);
-    if (!vetor){
-        printf("ERRO; não foi possível alocar memória para o vetor \n");
+    matriz_2 = (float *) malloc(sizeof(float) * dimensao * dimensao);
+    if (!matriz_2) {
+        printf("ERRO; não foi possível alocar memória para a matriz_2 \n");
         exit(1);
     }
 
-    resultado = (float *) malloc(sizeof(float) * dimensao);
-    if (!resultado){
-        printf("ERRO; não foi possível alocar memória para o resultado \n");
+    matriz_resultante = (float *) malloc(sizeof(float) * dimensao * dimensao);
+    if (!matriz_resultante) {
+        printf("ERRO; não foi possível alocar memória para a matriz_resultante \n");
         exit(1);
     }
 }
 
-void inicializa_matriz(int dimensao){
-    for (int linha = 0; linha < dimensao; linha++){
-        for (int coluna = 0; coluna < dimensao; coluna++){
-            matriz[linha * dimensao + coluna] = 1;
+void inicializa_matriz(int dimensao) {
+    for (int linha = 0; linha < dimensao; linha++) {
+        for (int coluna = 0; coluna < dimensao; coluna++) {
+            matriz_1[linha * dimensao + coluna] = 1;
+            matriz_2[linha * dimensao + coluna] = 1;
+            matriz_resultante[linha * dimensao + coluna] = 0;
         }
-        vetor[linha] = 1;
-        resultado[linha] = 0;
     }
 }
 
-void imprime_resultado(int dimensao){
+void imprime_resultado(int dimensao) {
     puts("Matriz de entrada: ");
-    for (int linha = 0; linha < dimensao; linha++){
-        for (int coluna = 0; coluna < dimensao; coluna++){
-            printf("%.1f ", matriz[linha * dimensao + coluna]);
+    for (int linha = 0; linha < dimensao; linha++) {
+        for (int coluna = 0; coluna < dimensao; coluna++) {
+            printf("%.1f ", matriz_1[linha * dimensao + coluna]);
         }
         puts("");
     }
-    puts("Vetor de entrada: ");
-    for (int i=0; i < dimensao; i++){
-        printf("%.1f ", vetor[i]);
+    puts("Matriz de entrada: ");
+    for (int linha = 0; linha < dimensao; linha++) {
+        for (int coluna = 0; coluna < dimensao; coluna++) {
+            printf("%.1f ", matriz_2[linha * dimensao + coluna]);
+        }
+        puts("");
     }
-    puts("");
 
-    puts("Vetor de saída: ");
-    for (int i=0; i < dimensao; i++){
-        printf("%.1f ", resultado[i]);
+    puts("Matriz de saída: ");
+    for (int linha = 0; linha < dimensao; linha++) {
+        for (int coluna = 0; coluna < dimensao; coluna++) {
+            printf("%.1f ", matriz_resultante[linha * dimensao + coluna]);
+        }
+        puts("");
     }
-    puts("");
 }
 
 
-void libera_memoria(){
-    free(matriz);
-    free(vetor);
-    free(resultado);
+void libera_memoria() {
+    free(matriz_1);
+    free(matriz_2);
+    free(matriz_resultante);
 }
