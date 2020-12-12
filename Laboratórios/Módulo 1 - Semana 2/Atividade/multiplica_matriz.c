@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include "timer.h"
 
 void aloca_memoria(int dimensao);
 void inicializa_matriz(int dimensao);
@@ -18,7 +19,7 @@ int dimensao_matriz, quantidade_threads;
 void * tarefa(void *arg){
 
     int thread_id = * (int *) arg;
-    printf("Thread %d \n", thread_id);
+//    printf("Thread %d \n", thread_id);
 
     for (int i = thread_id; i < dimensao_matriz; i += quantidade_threads){
         for (int coluna = 0; coluna < dimensao_matriz; coluna++){
@@ -31,6 +32,9 @@ void * tarefa(void *arg){
 
 
 int main(int argc, char* argv[]){
+    double tempo_inicial, tempo_final, tempo_delta;
+
+    GET_TIME(tempo_inicial);
 
     if (argc < 3) {
         printf("Informe a dimensão da matriz e o número de threads do programa <%s> por argumento \n", argv[0]);
@@ -50,6 +54,12 @@ int main(int argc, char* argv[]){
     aloca_memoria(dimensao_matriz);
 
     inicializa_matriz(dimensao_matriz);
+
+    GET_TIME(tempo_final);
+    tempo_delta = tempo_final - tempo_inicial;
+    printf("Tempo de inicialização: %lf\n", tempo_delta);
+
+    GET_TIME(tempo_inicial);
 
     // multiplicação da matriz pelo vetor (concorrência, exploração CPU Bound)
 
@@ -76,9 +86,19 @@ int main(int argc, char* argv[]){
         }
     }
 
-    imprime_resultado(dimensao_matriz);
+    GET_TIME(tempo_final);
+    tempo_delta = tempo_final - tempo_inicial;
+    printf("Tempo de multiplicação: %lf \n", tempo_delta);
+
+    GET_TIME(tempo_inicial);
+
+//    imprime_resultado(dimensao_matriz);
 
     libera_memoria();
+
+    GET_TIME(tempo_final);
+    tempo_delta = tempo_final - tempo_inicial;
+    printf("Tempo de finalização: %lf \n", tempo_delta);
 
     return 0;
 }
