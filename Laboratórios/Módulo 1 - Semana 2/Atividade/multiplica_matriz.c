@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 void aloca_memoria(int dimensao);
 void inicializa_matriz(int dimensao);
@@ -12,10 +13,21 @@ void imprime_resultado(int dimensao);
 void libera_memoria();
 
 float *matriz, *vetor, *resultado;
+int dimensao_matriz;
+
+void * tarefa(void *arg){
+
+    int thread_id = * (int *) arg;
+
+    for (int coluna = 0; coluna < dimensao_matriz; coluna++){
+        resultado[thread_id] += matriz[thread_id * dimensao_matriz + coluna] * vetor[coluna];
+    }
+
+    pthread_exit(NULL);
+}
 
 
 int main(int argc, char* argv[]){
-    int dimensao_matriz;
 
     if (argc < 2) {
         printf("Informe a dimensão da matriz do programa <%s> por argumento \n", argv[0]);
@@ -23,6 +35,8 @@ int main(int argc, char* argv[]){
     }
 
     dimensao_matriz = atoi(argv[1]);
+    pthread_t thread_ids_sistema[dimensao_matriz];
+    int thread_ids_local[dimensao_matriz];
 
     aloca_memoria(dimensao_matriz);
 
@@ -30,9 +44,26 @@ int main(int argc, char* argv[]){
 
     // multiplicação da matriz pelo vetor (concorrência, exploração CPU Bound)
 
-    for (int linha = 0; linha<dimensao_matriz; linha++){
-        for (int coluna = 0; coluna < dimensao_matriz; coluna++){
-            resultado[linha] += matriz[linha * dimensao_matriz + coluna] * vetor[coluna];
+    for (int thread = 0; thread<dimensao_matriz; thread++){
+
+        thread_ids_local[thread] = thread;
+        int status_pthread_create = pthread_create(&thread_ids_sistema[thread], NULL, tarefa, (void *) &thread_ids_local[thread]);
+
+        if (status_pthread_create) {
+            printf("ERRO; status code retornado no pthread_create() = %d\n", status_pthread_create);
+            return 2;
+        }
+    }
+
+    // Espera as threads terminarem
+
+    for (int thread = 0; thread<dimensao_matriz; thread++){
+        thread_ids_local[thread] = thread;
+        int status_pthread_join = pthread_join(thread_ids_sistema[thread], NULL);
+
+        if (status_pthread_join) {
+            printf("ERRO; status code retornado no pthread_join() = %d\n", status_pthread_join);
+            return 2;
         }
     }
 
