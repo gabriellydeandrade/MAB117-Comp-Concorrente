@@ -13,14 +13,17 @@ void imprime_resultado(int dimensao);
 void libera_memoria();
 
 float *matriz, *vetor, *resultado;
-int dimensao_matriz;
+int dimensao_matriz, quantidade_threads;
 
 void * tarefa(void *arg){
 
     int thread_id = * (int *) arg;
+    printf("Thread %d \n", thread_id);
 
-    for (int coluna = 0; coluna < dimensao_matriz; coluna++){
-        resultado[thread_id] += matriz[thread_id * dimensao_matriz + coluna] * vetor[coluna];
+    for (int i = thread_id; i < dimensao_matriz; i += quantidade_threads){
+        for (int coluna = 0; coluna < dimensao_matriz; coluna++){
+            resultado[i] += matriz[i * dimensao_matriz + coluna] * vetor[coluna];
+        }
     }
 
     pthread_exit(NULL);
@@ -29,14 +32,20 @@ void * tarefa(void *arg){
 
 int main(int argc, char* argv[]){
 
-    if (argc < 2) {
-        printf("Informe a dimensão da matriz do programa <%s> por argumento \n", argv[0]);
+    if (argc < 3) {
+        printf("Informe a dimensão da matriz e o número de threads do programa <%s> por argumento \n", argv[0]);
         return 1;
     }
 
     dimensao_matriz = atoi(argv[1]);
-    pthread_t thread_ids_sistema[dimensao_matriz];
-    int thread_ids_local[dimensao_matriz];
+    quantidade_threads = atoi(argv[2]);
+
+    pthread_t thread_ids_sistema[quantidade_threads];
+    int thread_ids_local[quantidade_threads];
+
+    if (quantidade_threads > dimensao_matriz){
+        quantidade_threads = dimensao_matriz;
+    }
 
     aloca_memoria(dimensao_matriz);
 
@@ -44,7 +53,7 @@ int main(int argc, char* argv[]){
 
     // multiplicação da matriz pelo vetor (concorrência, exploração CPU Bound)
 
-    for (int thread = 0; thread<dimensao_matriz; thread++){
+    for (int thread = 0; thread < quantidade_threads; thread++){
 
         thread_ids_local[thread] = thread;
         int status_pthread_create = pthread_create(&thread_ids_sistema[thread], NULL, tarefa, (void *) &thread_ids_local[thread]);
@@ -57,7 +66,7 @@ int main(int argc, char* argv[]){
 
     // Espera as threads terminarem
 
-    for (int thread = 0; thread<dimensao_matriz; thread++){
+    for (int thread = 0; thread < quantidade_threads; thread++){
         thread_ids_local[thread] = thread;
         int status_pthread_join = pthread_join(thread_ids_sistema[thread], NULL);
 
