@@ -29,7 +29,10 @@ int main(int argc, char* argv[]){
         Calcula a multiplicação de duas matrizes quadradas de forma concorrente.
 
         VALOR RETORNADO
-        Matriz resultante de dimensão N recebida por parâmetro.
+        Inteiro que significa sucesso ou falha.
+
+        Opcional: Printa Matriz resultante de dimensão N recebida por parâmetro.
+        Opcional: Printa o tempo gasto na implementação do programa.
 
     */
 
