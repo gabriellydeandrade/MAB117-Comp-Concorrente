@@ -1,7 +1,7 @@
 all: run
 
 run: build
-	@./soma_elementos 100000000 4
+	@./aproximacao_pi 1000000000 1
 
 build:
-	gcc -o soma_elementos  soma_elementos.c  -Wall -pthread
+	gcc -o aproximacao_pi  aproximacao_pi.c  -Wall -pthread -lm
