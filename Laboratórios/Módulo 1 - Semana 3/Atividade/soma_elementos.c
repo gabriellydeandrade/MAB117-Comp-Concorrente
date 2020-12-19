@@ -4,7 +4,7 @@
 #include "timer.h"
 
 int qtd_threads;
-float *vetor;
+double *vetor;
 long int dimensao_vetor;
 
 void inicializa_e_preenche_vetor();
@@ -12,10 +12,10 @@ void *tarefa(void *arg);
 
 int main(int argc, char *argv[]){
     double tempo_inicio, tempo_fim;
-    float soma_sequencial = 0;
-    float soma_concorrente = 0;
+    double soma_sequencial = 0;
+    double soma_concorrente = 0;
     pthread_t *thread_id;
-    float *soma_retornada_thread;
+    double *soma_retornada_thread;
 
     if (argc < 3){
         fprintf(stderr,"Informe a dimensão do vetor e o número de threads do programa <%s> por argumento \n", argv[0]);
@@ -81,7 +81,7 @@ int main(int argc, char *argv[]){
 }
 
 void inicializa_e_preenche_vetor(){
-    vetor = (float *) malloc(sizeof(float) * dimensao_vetor);
+    vetor = (double *) malloc(sizeof(double) * dimensao_vetor);
 
     if (!vetor){
         fprintf(stderr, "Não foi possível alocar memória para o vetor usando o malloc \n");
@@ -96,12 +96,12 @@ void inicializa_e_preenche_vetor(){
 
 void *tarefa(void *arg){
     long int id = (long int) arg;
-    float *soma_local;
+    double *soma_local;
     long int tamanho_bloco = dimensao_vetor / qtd_threads;
     long int inicio_bloco = id * tamanho_bloco;
     long int fim_bloco;
 
-    soma_local = (float *) malloc(sizeof(float));
+    soma_local = (double *) malloc(sizeof(double));
     if (!soma_local){
         fprintf(stderr, "Não foi possível alocar memória para a soma local usando o malloc \n");
         exit(1);
