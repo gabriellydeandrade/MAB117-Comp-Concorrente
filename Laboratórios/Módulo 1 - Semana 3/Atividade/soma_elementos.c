@@ -72,8 +72,8 @@ int main(int argc, char *argv[]){
     printf("Tempo concorrente: %lf\n", tempo_fim - tempo_inicio);
 
 
-    printf("Soma sequencial: %f\n", soma_sequencial);
-    printf("Soma concorrente: %f\n", soma_concorrente);
+    printf("Soma sequencial: %.15lf\n", soma_sequencial);
+    printf("Soma concorrente: %.15lf\n", soma_concorrente);
 
     free(vetor);
 
