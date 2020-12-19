@@ -33,6 +33,7 @@ int main(int argc, char *argv[]){
 
     for (long long int i=0; i<qtd_elementos_aproximacao_pi; i++){
         soma_sequencial += vetor_soma[i];
+//        printf("valor da soma ")
     }
 
     printf("Aproximação de PI sequencial: %.15lf\n", 4 * soma_sequencial);
@@ -95,11 +96,19 @@ void inicializa_e_preenche_vetor(){
         exit(1);
     }
 
-    double denominador = 1;
+    double denominador = 2 * qtd_elementos_aproximacao_pi - 1;
+    int sinal;
     for (long long int i=0; i<qtd_elementos_aproximacao_pi; i++){
-        vetor_soma[i] = pow(-1, i) * (1/denominador);
+        sinal = 1;
+        if (i % 2 == 0){
+            sinal *= -1; // Aqui a lógica é ao contrario pois a série está sendo calculada invertida
+        }
+        vetor_soma[i] = sinal * (1/denominador);
 
-        denominador += 2;
+//        printf("valor: %f, denominador %f, i: %lld \n", vetor_soma[i], denominador, i);
+
+
+        denominador -= 2;
     }
 
 }
