@@ -9,61 +9,74 @@
 #include <pthread.h>
 #include "timer.h"
 
-long int TAM_VETOR = 30;
-int QTD_THREADS = 10;
-int *vetor;
 typedef struct {
+    int *vetor;
     int inicio;
     int fim;
 } threadArgs;
 
-void mergeSort(int inicio, int fim);
-void merge(int inicio, int meio, int fim);
+void mergeSort(int tamanho_vetor, int *vetor, int qtd_threads);
+void divide(int *vetor, int inicio, int fim);
+void merge(int *vetor, int inicio, int meio, int fim);
 void *tarefa(void *arg);
-void imprime_vetor();
+void imprime_vetor(int tamanho_vetor, int *vetor);
 
 
 int main(){
-    pthread_t *thread_id;
-    threadArgs *arg;
-    threadArgs *vetorThreadArgs[QTD_THREADS];
-    int qtd_extra_total = TAM_VETOR % QTD_THREADS;
-    int qtd_extra = 0;
-    double tempo_inicial, tempo_final, tempo_delta;
+    long int tamanho_vetor = 50;
+    int qtd_threads = 4;
+    int *vetor
     time_t t;
 
     // Inicializa a semente randômica que iremos usar na inicialização
     srand((unsigned) time(&t));
 
-    // Inicializa com valores randomicos de 0 a 100 e exibe vetor antes
-    vetor = malloc(TAM_VETOR * sizeof(int));
-    for (int i = 0; i < TAM_VETOR; i++){
+    // Inicializa com valores randomicos de 0 a 100 e exibe vetor antes (modificar nos testes)
+    vetor = malloc(tamanho_vetor * sizeof(int));
+    for (int i = 0; i < tamanho_vetor; i++){
         vetor[i] = rand() % 100;
     }
 
     printf("Vetor antes \n");
-    imprime_vetor();
+    imprime_vetor(tamanho_vetor, vetor);
+
+    mergeSort(tamanho_vetor, vetor, qtd_threads);
+
+    printf("Vetor depois \n");
+    imprime_vetor(tamanho_vetor, vetor);
+
+    free(vetor);
+}
+
+void mergeSort(int tamanho_vetor, int *vetor, int qtd_threads){
+    pthread_t *thread_id;
+    threadArgs *arg;
+    threadArgs *vetorThreadArgs[qtd_threads];
+    int qtd_extra_total = tamanho_vetor % qtd_threads;
+    int qtd_extra = 0;
+    double tempo_inicial, tempo_final, tempo_delta;
 
     // Alocação das threads no trecho concorrente
 
     GET_TIME(tempo_inicial);
 
-    thread_id = (pthread_t *) malloc(sizeof(pthread_t) * QTD_THREADS);
+    thread_id = (pthread_t *) malloc(sizeof(pthread_t) * qtd_threads);
     if (!thread_id){
         fprintf(stderr, "Não foi possível alocar memória para o vetor usando o malloc \n");
-        return 1;
+        exit(1);
     }
 
-    for (long int i=0; i<QTD_THREADS; i++){
+    for (long int i=0; i<qtd_threads; i++){
         arg = malloc(sizeof(threadArgs));
 
         if (!arg) {
             printf("ERRO; não foi possível alocar memória\n");
-            return 1;
+            exit(1);
         }
 
-        arg->inicio = i * (TAM_VETOR/QTD_THREADS);
-        arg->fim = (i + 1) * (TAM_VETOR/QTD_THREADS);
+        arg->vetor = vetor;
+        arg->inicio = i * (tamanho_vetor/qtd_threads);
+        arg->fim = (i + 1) * (tamanho_vetor/qtd_threads);
 
         arg->inicio += qtd_extra;
         arg->fim += qtd_extra;
@@ -79,47 +92,45 @@ int main(){
         int status_pthread_create = pthread_create(thread_id + i, NULL, tarefa, (void *) vetorThreadArgs[i]);
         if (status_pthread_create) {
             printf("ERRO; status code retornado no pthread_create() = %d\n", status_pthread_create);
-            return 2;
+            exit(1);
         }
     }
 
     // Aguardando execução das threads
 
-    for (long int i=0; i<QTD_THREADS; i++){
+    for (long int i=0; i<qtd_threads; i++){
         int status_pthread_join = pthread_join(*(thread_id+i), NULL);
         if (status_pthread_join) {
             fprintf(stderr, "Status code retornado no pthread_join() = %d\n", status_pthread_join);
-            return 2;
+            exit(1);
         }
     }
 
     // Junta cada parte ordenada pelas threads (trecho sequencial)
 
     int j = 0;
-    if (QTD_THREADS > 1){
-        int inicio, meio, fim;
-        int id = 0;
+    int inicio, meio, fim;
+    int id = 0;
 
-        // A quantidade de junções deve ser igual a qtd de partes - 1
-        for (int i=0; i<QTD_THREADS-1; i++){
-            if (id+1 < QTD_THREADS){
-                inicio = vetorThreadArgs[id]->inicio;
-                meio = vetorThreadArgs[id]->fim;
-                fim = vetorThreadArgs[id+1]->fim;
-                id += 2;
-            }
-            else {
-                inicio = 0;
-                meio = vetorThreadArgs[j+1]->fim;
-
-                if (j+3 >= QTD_THREADS)
-                    fim = vetorThreadArgs[j+2]->fim;
-                else
-                    fim = vetorThreadArgs[j+3]->fim;
-                j+=2;
-            }
-            merge(inicio, meio, fim);
+    // A quantidade de junções deve ser igual a qtd de partes - 1
+    for (int i=0; i<qtd_threads-1; i++){
+        if (id+1 < qtd_threads){
+            inicio = vetorThreadArgs[id]->inicio;
+            meio = vetorThreadArgs[id]->fim;
+            fim = vetorThreadArgs[id+1]->fim;
+            id += 2;
         }
+        else {
+            inicio = 0;
+            meio = vetorThreadArgs[j+1]->fim;
+
+            if (j+3 >= qtd_threads)
+                fim = vetorThreadArgs[j+2]->fim;
+            else
+                fim = vetorThreadArgs[j+3]->fim;
+            j+=2;
+        }
+        merge(vetor, inicio, meio, fim);
     }
 
     GET_TIME(tempo_final);
@@ -127,23 +138,20 @@ int main(){
     printf("Tempo total concorrente: %lf\n", tempo_delta);
 
     GET_TIME(tempo_inicial);
-
-    printf("Vetor depois \n");
-    imprime_vetor();
 }
 
-void mergeSort(int inicio, int fim){
+void divide(int *vetor, int inicio, int fim){
     if (fim - inicio > 1){
         int meio = (inicio+fim)/2;
 
-        mergeSort(inicio, meio);
-        mergeSort(meio, fim);
+        divide(vetor, inicio, meio);
+        divide(vetor, meio, fim);
 
-        merge(inicio, meio, fim);
+        merge(vetor, inicio, meio, fim);
     }
 }
 
-void merge(int inicio, int meio, int fim){
+void merge(int *vetor, int inicio, int meio, int fim){
     int qtd_elementos_esquerdo = meio - inicio;
     int qtd_elementos_direito = fim - meio;
 
@@ -182,14 +190,14 @@ void merge(int inicio, int meio, int fim){
 void *tarefa(void *arg){
     threadArgs *args = (threadArgs *) arg;
 
-    mergeSort(args->inicio, args->fim);
+    divide(args->vetor, args->inicio, args->fim);
 
     pthread_exit(NULL);
 }
 
-void imprime_vetor(){
-    for (int i=0; i<TAM_VETOR; i++){
-        printf("%d ", vetor[i]);
+void imprime_vetor(int tamanho_vetor, int *v){
+    for (int i=0; i<tamanho_vetor; i++){
+        printf("%d ", v[i]);
     }
     printf("\n");
 }
