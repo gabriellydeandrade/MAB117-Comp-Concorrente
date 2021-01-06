@@ -3,7 +3,6 @@
 /* Módulo 1 - Trabalho de Implementação */
 /* Merge Sort Concorrente */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -15,40 +14,14 @@ typedef struct {
     int fim;
 } threadArgs;
 
-void mergeSort(int tamanho_vetor, int *vetor, int qtd_threads);
+int *mergeSort(int tamanho_vetor, int *vetor, int qtd_threads);
 void divide(int *vetor, int inicio, int fim);
 void merge(int *vetor, int inicio, int meio, int fim);
 void *tarefa(void *arg);
 void imprime_vetor(int tamanho_vetor, int *vetor);
 
 
-int main(){
-    long int tamanho_vetor = 50;
-    int qtd_threads = 4;
-    int *vetor
-    time_t t;
-
-    // Inicializa a semente randômica que iremos usar na inicialização
-    srand((unsigned) time(&t));
-
-    // Inicializa com valores randomicos de 0 a 100 e exibe vetor antes (modificar nos testes)
-    vetor = malloc(tamanho_vetor * sizeof(int));
-    for (int i = 0; i < tamanho_vetor; i++){
-        vetor[i] = rand() % 100;
-    }
-
-    printf("Vetor antes \n");
-    imprime_vetor(tamanho_vetor, vetor);
-
-    mergeSort(tamanho_vetor, vetor, qtd_threads);
-
-    printf("Vetor depois \n");
-    imprime_vetor(tamanho_vetor, vetor);
-
-    free(vetor);
-}
-
-void mergeSort(int tamanho_vetor, int *vetor, int qtd_threads){
+int *mergeSort(int tamanho_vetor, int *vetor, int qtd_threads){
     pthread_t *thread_id;
     threadArgs *arg;
     threadArgs *vetorThreadArgs[qtd_threads];
@@ -138,6 +111,8 @@ void mergeSort(int tamanho_vetor, int *vetor, int qtd_threads){
     printf("Tempo total concorrente: %lf\n", tempo_delta);
 
     GET_TIME(tempo_inicial);
+
+    return vetor;
 }
 
 void divide(int *vetor, int inicio, int fim){
