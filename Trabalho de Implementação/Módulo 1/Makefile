@@ -12,6 +12,6 @@ teste: build
 
 
 build:
-	gcc -o main  main.c -Wall -pthread
+	gcc -o main main.c merge_sort_concorrente.c teste_merge_sort_concorrente.c -Wall -pthread
 	./main $(FLAGS)
 

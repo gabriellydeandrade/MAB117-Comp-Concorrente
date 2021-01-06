@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include "timer.h"
 
 typedef struct {
     int *vetor;
@@ -27,11 +26,8 @@ int *merge_sort(int tamanho_vetor, int *vetor, int qtd_threads){
     threadArgs *vetorThreadArgs[qtd_threads];
     int qtd_extra_total = tamanho_vetor % qtd_threads;
     int qtd_extra = 0;
-    double tempo_inicial, tempo_final, tempo_delta;
 
     // Alocação das threads no trecho concorrente
-
-    GET_TIME(tempo_inicial);
 
     thread_id = (pthread_t *) malloc(sizeof(pthread_t) * qtd_threads);
     if (!thread_id){
@@ -105,12 +101,6 @@ int *merge_sort(int tamanho_vetor, int *vetor, int qtd_threads){
         }
         merge(vetor, inicio, meio, fim);
     }
-
-    GET_TIME(tempo_final);
-    tempo_delta = tempo_final - tempo_inicial;
-    printf("Tempo total concorrente: %lf\n", tempo_delta);
-
-    GET_TIME(tempo_inicial);
 
     return vetor;
 }

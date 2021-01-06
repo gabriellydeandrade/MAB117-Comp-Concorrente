@@ -1,11 +1,13 @@
 #include <string.h>
-#include "teste_merge_sort_concorrente.c"
+#include <stdlib.h>
+#include <stdio.h>
+#include "time.h"
+#include "main.h"
 
-#ifdef DEBUG
-    #define debug if (1)
-#else
-    #define debug if (0)
-#endif
+#define ANSI_COR_FALHA     "\x1b[31m"
+#define ANSI_COR_SUCESSO   "\x1b[32m"
+#define ANSI_COR_PADRAO   "\x1b[0m"
+
 
 int main(int argc, char *argv[]){
     /*
@@ -28,8 +30,11 @@ int main(int argc, char *argv[]){
     else {
         // Executa esse bloco para avaliar desempenho com vetores de valores randômicos
 
-        long int tamanho_vetor = 50;
-        int qtd_threads = 4;
+        long int tamanho_vetor;
+        int qtd_threads;
+
+        tamanho_vetor = 50;
+        qtd_threads = 4;
         int *vetor;
         time_t t;
 
