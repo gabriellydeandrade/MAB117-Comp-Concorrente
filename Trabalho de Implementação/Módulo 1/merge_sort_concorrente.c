@@ -14,14 +14,14 @@ typedef struct {
     int fim;
 } threadArgs;
 
-int *mergeSort(int tamanho_vetor, int *vetor, int qtd_threads);
+int *merge_sort(int tamanho_vetor, int *vetor, int qtd_threads);
 void divide(int *vetor, int inicio, int fim);
 void merge(int *vetor, int inicio, int meio, int fim);
 void *tarefa(void *arg);
 void imprime_vetor(int tamanho_vetor, int *vetor);
 
 
-int *mergeSort(int tamanho_vetor, int *vetor, int qtd_threads){
+int *merge_sort(int tamanho_vetor, int *vetor, int qtd_threads){
     pthread_t *thread_id;
     threadArgs *arg;
     threadArgs *vetorThreadArgs[qtd_threads];

@@ -45,8 +45,8 @@ int main(int argc, char *argv[]){
         printf("Vetor antes \n");
         imprime_vetor(tamanho_vetor, vetor);
 
-        // Chama a implementação do mergeSort concorrente
-        mergeSort(tamanho_vetor, vetor, qtd_threads);
+        // Chama a implementação do merge_sort concorrente
+        merge_sort(tamanho_vetor, vetor, qtd_threads);
 
         printf("Vetor depois \n");
         imprime_vetor(tamanho_vetor, vetor);

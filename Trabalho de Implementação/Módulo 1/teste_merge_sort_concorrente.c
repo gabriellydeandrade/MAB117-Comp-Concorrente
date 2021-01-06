@@ -31,7 +31,7 @@ void testa_se_retorna_vetor_ordenado(){
     int vetor[] = {10, 5, 1, 0};
     int vetor_esperado[] = {0, 1, 5, 10};
 
-    int *resultado = mergeSort(tamanho_vetor, vetor, qtd_threads);
+    int *resultado = merge_sort(tamanho_vetor, vetor, qtd_threads);
 
 
     if (vetores_iguais(resultado, vetor_esperado))
@@ -53,7 +53,7 @@ void testa_se_retorna_vetor_igual_se_ele_ja_for_ordenado(){
     int vetor[] = {0, 1, 5, 10};
     int vetor_esperado[] = {0, 1, 5, 10};
 
-    int *resultado = mergeSort(tamanho_vetor, vetor, qtd_threads);
+    int *resultado = merge_sort(tamanho_vetor, vetor, qtd_threads);
 
     if (vetores_iguais(resultado, vetor_esperado))
         printf(ANSI_COR_SUCESSO "Teste `testa_se_retorna_vetor_igual_se_ele_ja_for_ordenado` passou \n" ANSI_COR_PADRAO);
@@ -75,7 +75,7 @@ void testa_se_ordena_vetor_ordenado_em_ordem_decrescente(){
     int vetor[] = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
     int vetor_esperado[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
-    int *resultado = mergeSort(tamanho_vetor, vetor, qtd_threads);
+    int *resultado = merge_sort(tamanho_vetor, vetor, qtd_threads);
 
     if (vetores_iguais(resultado, vetor_esperado))
         printf(ANSI_COR_SUCESSO "Teste `testa_se_ordena_vetor_ordenado_em_ordem_decrescente` passou \n" ANSI_COR_PADRAO);
