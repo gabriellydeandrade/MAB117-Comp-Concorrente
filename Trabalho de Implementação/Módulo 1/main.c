@@ -15,26 +15,31 @@ int main(int argc, char *argv[]){
                   validação dos cenários.
 
         Parâmetros:
-            Flag "--teste": Poderá receber opcionalmente a flag para rodar os testes unitários.
-                            Deve ser o primeiro parâmetro a ser informado.
+            Quantidade de elementos no vetor: <long int> primeiro parâmetro.
+            Quantidade de threads: <int> segundo parâmetro.
+            Flag "--teste": poderá receber opcionalmente a flag para rodar os testes unitários.
+                            Deve ser o último parâmetro a ser informado.
 
         Retorno:
             Não há. Apenas há exibição no console.
 
     */
 
-    if (argc > 1 && !strncmp(argv[1], "--teste", 7)){
-        // Caso o primeiro parâmetro seja "--teste" na função main, ele irá executar o arquivo de testes
+    if (argc > 1 && !strncmp(argv[argc-1], "--teste", 7)){
+        // Caso o último parâmetro seja "--teste" na função main, ele irá executar o arquivo de testes
         teste();
     }
     else {
         // Executa esse bloco para avaliar desempenho com vetores de valores randômicos
 
-        long int tamanho_vetor;
-        int qtd_threads;
+        if (argc < 3) {
+            printf("Informe o tamanho do vetor e o número de threads do programa <%s> por argumento \n", argv[0]);
+            return 1;
+        }
 
-        tamanho_vetor = 50;
-        qtd_threads = 4;
+        long int tamanho_vetor = atoi(argv[1]);
+        int qtd_threads = atoi(argv[2]);
+
         int *vetor;
         time_t t;
 
