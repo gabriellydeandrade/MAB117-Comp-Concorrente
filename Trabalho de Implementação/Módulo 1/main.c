@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "time.h"
 #include "main.h"
+#include "timer.h"
 
 #define ANSI_COR_FALHA     "\x1b[31m"
 #define ANSI_COR_SUCESSO   "\x1b[32m"
@@ -45,7 +46,7 @@ int main(int argc, char *argv[]){
 
         long int tamanho_vetor = atoi(argv[1]);
         int qtd_threads = atoi(argv[2]);
-
+        double tempo_inicio, tempo_fim, tempo_delta;
         int *vetor;
         time_t t;
 
@@ -61,8 +62,14 @@ int main(int argc, char *argv[]){
         if (debug) printf("Vetor antes \n");
         if (debug) imprime_vetor(tamanho_vetor, vetor);
 
-        // Chama a implementação do merge_sort concorrente
+        // Chama a implementação do merge_sort concorrente e adiciona tomada de tempo
+        GET_TIME(tempo_inicio);
+
         merge_sort(tamanho_vetor, vetor, qtd_threads);
+
+        GET_TIME(tempo_fim);
+        tempo_delta = tempo_fim - tempo_inicio;
+        printf("Tempo sequencial: %lf\n\n", tempo_delta);
 
         if (debug) printf("Vetor depois \n");
         if (debug) imprime_vetor(tamanho_vetor, vetor);
