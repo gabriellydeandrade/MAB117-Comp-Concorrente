@@ -31,7 +31,7 @@ int *merge_sort(int tamanho_vetor, int *vetor, int qtd_threads){
 
     thread_id = (pthread_t *) malloc(sizeof(pthread_t) * qtd_threads);
     if (!thread_id){
-        fprintf(stderr, "Não foi possível alocar memória para o vetor usando o malloc \n");
+        fprintf(stderr, "Não foi possível alocar memória para o vetor de identificação das threads usando o malloc \n");
         exit(1);
     }
 
@@ -39,7 +39,7 @@ int *merge_sort(int tamanho_vetor, int *vetor, int qtd_threads){
         arg = malloc(sizeof(threadArgs));
 
         if (!arg) {
-            printf("ERRO; não foi possível alocar memória\n");
+            printf("ERRO; não foi possível alocar memória para o argumento da thread usando malloc\n");
             exit(1);
         }
 
@@ -119,9 +119,17 @@ void divide(int *vetor, int inicio, int fim){
 void merge(int *vetor, int inicio, int meio, int fim){
     int qtd_elementos_esquerdo = meio - inicio;
     int qtd_elementos_direito = fim - meio;
-
-    int esquerdo[qtd_elementos_esquerdo], direito[qtd_elementos_direito];
     int topo_esquerdo = 0, topo_direito = 0;
+    int *esquerdo = malloc(qtd_elementos_esquerdo * sizeof(int));
+    if (!esquerdo){
+        fprintf(stderr, "Não foi possível alocar memória para o vetor da metade esquerda usando o malloc \n");
+        exit(1);
+    }
+    int *direito = malloc(qtd_elementos_direito * sizeof(int));
+    if (!direito){
+        fprintf(stderr, "Não foi possível alocar memória para o vetor da metade direita usando o malloc \n");
+        exit(1);
+    }
 
     for (int i=0; i<qtd_elementos_esquerdo; i++){
         esquerdo[i] = vetor[inicio + i];
@@ -150,6 +158,8 @@ void merge(int *vetor, int inicio, int meio, int fim){
         }
     }
 
+    free(esquerdo);
+    free(direito);
 }
 
 void *tarefa(void *arg){

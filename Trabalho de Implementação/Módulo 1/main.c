@@ -55,6 +55,11 @@ int main(int argc, char *argv[]){
 
         // Inicializa com valores randomicos de 0 a 100 e exibe vetor antes
         vetor = malloc(tamanho_vetor * sizeof(int));
+        if (!vetor){
+            fprintf(stderr, "Não foi possível alocar memória para o vetor usando o malloc \n");
+            exit(1);
+        }
+
         for (int i = 0; i < tamanho_vetor; i++){
             vetor[i] = rand() % 100;
         }

@@ -17,7 +17,7 @@ build:
 	gcc -o main main.c merge_sort_concorrente.c teste_merge_sort_concorrente.c -Wall -pthread
 
 run:
-	./main 1000000 4 $(FLAGS)
+	./main 1000 4 $(FLAGS)
 
 run_teste:
 	./main $(FLAGS)
