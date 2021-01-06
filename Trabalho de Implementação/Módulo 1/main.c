@@ -8,6 +8,7 @@
 #define ANSI_COR_SUCESSO   "\x1b[32m"
 #define ANSI_COR_PADRAO   "\x1b[0m"
 
+int debug = 0;
 
 int main(int argc, char *argv[]){
     /*
@@ -37,6 +38,11 @@ int main(int argc, char *argv[]){
             return 1;
         }
 
+        if (!strncmp(argv[argc-1], "--debug", 7)){
+            // Caso o último parâmetro seja "--debug" na função main, ele irá printar resultados dos vetores
+            debug = 1;
+        }
+
         long int tamanho_vetor = atoi(argv[1]);
         int qtd_threads = atoi(argv[2]);
 
@@ -52,14 +58,14 @@ int main(int argc, char *argv[]){
             vetor[i] = rand() % 100;
         }
 
-        printf("Vetor antes \n");
-        imprime_vetor(tamanho_vetor, vetor);
+        if (debug) printf("Vetor antes \n");
+        if (debug) imprime_vetor(tamanho_vetor, vetor);
 
         // Chama a implementação do merge_sort concorrente
         merge_sort(tamanho_vetor, vetor, qtd_threads);
 
-        printf("Vetor depois \n");
-        imprime_vetor(tamanho_vetor, vetor);
+        if (debug) printf("Vetor depois \n");
+        if (debug) imprime_vetor(tamanho_vetor, vetor);
 
         // Libera memória do vetor alocado dinamicamente
         free(vetor);

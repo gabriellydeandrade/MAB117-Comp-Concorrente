@@ -1,7 +1,6 @@
-FLAG_DEBUG = DEBUG
+FLAG_DEBUG = --debug
 FLAG_TESTE = --teste
 
-all: FLAGS = $(FLAG_DEBUG)
 all: build
 all: run
 
