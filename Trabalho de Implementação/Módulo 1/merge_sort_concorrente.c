@@ -13,14 +13,14 @@ typedef struct {
     int fim;
 } threadArgs;
 
-int *merge_sort(int tamanho_vetor, int *vetor, int qtd_threads);
-void divide(int *vetor, int inicio, int fim);
+int *merge_sort_concorrente(int tamanho_vetor, int *vetor, int qtd_threads);
+void merge_sort(int *vetor, int inicio, int fim);
 void merge(int *vetor, int inicio, int meio, int fim);
 void *tarefa(void *arg);
 void imprime_vetor(int tamanho_vetor, int *vetor);
 
 
-int *merge_sort(int tamanho_vetor, int *vetor, int qtd_threads){
+int *merge_sort_concorrente(int tamanho_vetor, int *vetor, int qtd_threads){
     pthread_t *thread_id;
     threadArgs *arg;
     threadArgs *vetorThreadArgs[qtd_threads];
@@ -105,12 +105,12 @@ int *merge_sort(int tamanho_vetor, int *vetor, int qtd_threads){
     return vetor;
 }
 
-void divide(int *vetor, int inicio, int fim){
+void merge_sort(int *vetor, int inicio, int fim){
     if (fim - inicio > 1){
         int meio = (inicio+fim)/2;
 
-        divide(vetor, inicio, meio);
-        divide(vetor, meio, fim);
+        merge_sort(vetor, inicio, meio);
+        merge_sort(vetor, meio, fim);
 
         merge(vetor, inicio, meio, fim);
     }
@@ -165,7 +165,7 @@ void merge(int *vetor, int inicio, int meio, int fim){
 void *tarefa(void *arg){
     threadArgs *args = (threadArgs *) arg;
 
-    divide(args->vetor, args->inicio, args->fim);
+    merge_sort(args->vetor, args->inicio, args->fim);
 
     pthread_exit(NULL);
 }

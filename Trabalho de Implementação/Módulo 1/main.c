@@ -150,7 +150,7 @@ int main(int argc, char *argv[]){
     // Chama a implementação do merge_sort concorrente e adiciona tomada de tempo
     GET_TIME(tempo_inicio);
 
-    merge_sort(TAM_VETOR, VETOR, NTHREADS);
+    merge_sort_concorrente(TAM_VETOR, VETOR, NTHREADS);
 
     GET_TIME(tempo_fim);
     tempo_delta = tempo_fim - tempo_inicio;

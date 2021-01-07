@@ -30,7 +30,7 @@ void testa_se_retorna_vetor_ordenado(){
     for (int qtd_threads=1; qtd_threads<tamanho_vetor; qtd_threads++) {
 
         int vetor[] = {10, 5, 1, 0};
-        int *resultado = merge_sort(tamanho_vetor, vetor, qtd_threads);
+        int *resultado = merge_sort_concorrente(tamanho_vetor, vetor, qtd_threads);
 
         if (!compara_se_vetores_sao_iguais(resultado, vetor_esperado, tamanho_vetor)){
             printf(ANSI_COR_FALHA "Teste `testa_se_retorna_vetor_ordenado` com %d thread(s) falhou \n" ANSI_COR_PADRAO, qtd_threads);
@@ -56,7 +56,7 @@ void testa_se_retorna_vetor_igual_se_ele_ja_for_ordenado(){
     for (int qtd_threads=1; qtd_threads<tamanho_vetor; qtd_threads++) {
 
         int vetor[] = {0, 1, 5, 10};
-        int *resultado = merge_sort(tamanho_vetor, vetor, qtd_threads);
+        int *resultado = merge_sort_concorrente(tamanho_vetor, vetor, qtd_threads);
 
         if (!compara_se_vetores_sao_iguais(resultado, vetor_esperado, tamanho_vetor)){
             printf(ANSI_COR_FALHA "Teste `testa_se_retorna_vetor_igual_se_ele_ja_for_ordenado` com %d thread(s) falhou \n" ANSI_COR_PADRAO, qtd_threads);
@@ -82,7 +82,7 @@ void testa_se_ordena_vetor_ordenado_em_ordem_decrescente(){
     for (int qtd_threads=1; qtd_threads<tamanho_vetor; qtd_threads++) {
 
         int vetor[] = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
-        int *resultado = merge_sort(tamanho_vetor, vetor, qtd_threads);
+        int *resultado = merge_sort_concorrente(tamanho_vetor, vetor, qtd_threads);
 
         if (!compara_se_vetores_sao_iguais(resultado, vetor_esperado, tamanho_vetor)){
             printf(ANSI_COR_FALHA "Teste `testa_se_ordena_vetor_ordenado_em_ordem_decrescente` com %d thread(s) falhou \n" ANSI_COR_PADRAO, qtd_threads);
@@ -106,7 +106,7 @@ void testa_se_ordena_corretamente_independente_da_quantidade_de_threads(){
 
     for (int qtd_threads=1; qtd_threads<tamanho_vetor; qtd_threads++){
         int vetor[] = {5, 3, 9, 1, 0, 2, 6, 7, 4, 8};
-        int *resultado = merge_sort(tamanho_vetor, vetor, qtd_threads);
+        int *resultado = merge_sort_concorrente(tamanho_vetor, vetor, qtd_threads);
 
         if (compara_se_vetores_sao_iguais(resultado, vetor_esperado, tamanho_vetor))
             printf(ANSI_COR_SUCESSO "Teste `testa_se_ordena_corretamente_independente_da_quantidade_de_threads` com %d thread(s) passou \n" ANSI_COR_PADRAO, qtd_threads);
