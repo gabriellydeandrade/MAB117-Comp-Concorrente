@@ -15,34 +15,42 @@ int RANDOMICO = 0;
 int NTHREADS = 1;
 int READ_FILE = 0;
 char *FILENAME;
-long long int TAM_VETOR;
+long long int TAM_VETOR = 0;
 int *VETOR;
 int OUTPUT = 0;
 int SUMARIO = 0;
 
 void ler_parametros(int qtd_params, char *params[]){
     for(int i=1; i<qtd_params; i++){
-        if(!strncmp(params[i], "--teste", 7)){ teste(); exit(0);};
+        if(!strncmp(params[i], "--teste", 7)){ teste(); exit(0);}
         if(!strncmp(params[i], "--debug", 7)) DEBUG=1;
         if(!strncmp(params[i], "--validar", 9)) VALIDAR=1;
+        if(!strncmp(params[i], "--tamanho_vetor", 15)) TAM_VETOR=atoi(params[++i]);
         if(!strncmp(params[i], "--threads", 9)) NTHREADS=atoi(params[++i]);
-        if(!strncmp(params[i], "--file", 6)){ READ_FILE=1; FILENAME=params[++i]; };
+        if(!strncmp(params[i], "--file", 6)){ READ_FILE=1; FILENAME=params[++i]; }
         if(!strncmp(params[i], "--randomico", 11)) RANDOMICO=1;
         if(!strncmp(params[i], "--output", 8)) OUTPUT=1;
         if(!strncmp(params[i], "--sumario", 9)) SUMARIO=1;
-    };
-
-    if (DEBUG) printf("Ordenando vetor com %d threads\n", NTHREADS);
+    }
 
     // Validações
+    if (TAM_VETOR == 0){
+        printf("Informe a quantidade de elementos a ser ordenada com a flag --tamanho_vetor\n");
+    }
+
     if (READ_FILE && RANDOMICO) {
         fprintf(stderr, "Não é possível utilizar a flag --file com a flag --randomico\n");
         exit(1);
-    };
+    }
+    if (!READ_FILE || !RANDOMICO) {
+        RANDOMICO = 1;
+    }
     if(NTHREADS < 1) {
         fprintf(stderr, "O número de threads deve ser maior que zero\n");
         exit(1);
-    };
+    }
+
+    if (DEBUG) printf("Ordenando vetor com %lld elementos com %d threads\n", TAM_VETOR, NTHREADS);
 };
 
 void ler_vetor_em_arquivo(char *filename){
@@ -82,6 +90,12 @@ void inicializa_randomico(){
 
     // Inicializa a semente randômica que iremos usar na inicialização
     srand((unsigned) time(&t));
+
+    VETOR = malloc(TAM_VETOR * sizeof(int));
+    if(!VETOR){
+        fprintf(stderr, "Não foi possível alocar memória para o vetor usando o malloc \n");
+        exit(1);
+    }
 
     for (int i = 0; i < TAM_VETOR; i++)
         VETOR[i] = rand() % 100;

@@ -1,6 +1,7 @@
-FLAG_DEBUG = --debug
+FLAG_DEBUG = --debug --validar
 FLAG_TESTE = --teste
 
+all: FLAGS = --sumario --validar
 all: build
 all: run
 
@@ -17,7 +18,7 @@ build:
 	gcc -o main main.c merge_sort_concorrente.c teste_merge_sort_concorrente.c -Wall -pthread
 
 run:
-	./main 1000 4 $(FLAGS)
+	./main --tamanho_vetor 500 --threads 4 --randomico $(FLAGS)
 
 run_teste:
 	./main $(FLAGS)
