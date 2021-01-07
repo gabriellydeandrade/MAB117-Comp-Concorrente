@@ -13,9 +13,9 @@ int DEBUG = 0;
 int VALIDAR = 0;
 int RANDOMICO = 0;
 int NTHREADS = 1;
-int READ_FILE = 0;
-char *FILENAME;
-long long int TAM_VETOR = 0;
+int LER_ARQUIVO = 0;
+char *NOME_ARQUIVO;
+long long int TAM_VETOR;
 int *VETOR;
 int OUTPUT = 0;
 int SUMARIO = 0;
@@ -25,24 +25,36 @@ void ler_parametros(int qtd_params, char *params[]){
         if(!strncmp(params[i], "--teste", 7)){ teste(); exit(0);}
         if(!strncmp(params[i], "--debug", 7)) DEBUG=1;
         if(!strncmp(params[i], "--validar", 9)) VALIDAR=1;
-        if(!strncmp(params[i], "--tamanho_vetor", 15)) TAM_VETOR=atoi(params[++i]);
-        if(!strncmp(params[i], "--threads", 9)) NTHREADS=atoi(params[++i]);
-        if(!strncmp(params[i], "--file", 6)){ READ_FILE=1; FILENAME=params[++i]; }
+        if(!strncmp(params[i], "--tamanho_vetor", 15)) {
+            if (i+1 >= qtd_params) puts("Informe a quantidade de elementos do vetor após a flag --tamanho_vetor");
+            else TAM_VETOR=atoi(params[++i]);;
+        }
+        if(!strncmp(params[i], "--threads", 9)) {
+            if (i+1 >= qtd_params) puts("Informe a quantidade de threads após a flag --threads");
+            else NTHREADS=atoi(params[++i]);
+        }
+        if(!strncmp(params[i], "--arquivo", 9)){
+            LER_ARQUIVO=1;
+            if (i+1 >= qtd_params) puts("Informe o nome do arquivo após a flag --arquivo");
+            else NOME_ARQUIVO=params[++i];
+        }
         if(!strncmp(params[i], "--randomico", 11)) RANDOMICO=1;
         if(!strncmp(params[i], "--output", 8)) OUTPUT=1;
         if(!strncmp(params[i], "--sumario", 9)) SUMARIO=1;
     }
 
-    // Validações
-    if (TAM_VETOR == 0){
-        printf("Informe a quantidade de elementos a ser ordenada com a flag --tamanho_vetor\n");
-    }
+    if (!LER_ARQUIVO && DEBUG) printf("Ordenando vetor com %lld elementos com %d threads\n", TAM_VETOR, NTHREADS);
 
-    if (READ_FILE && RANDOMICO) {
-        fprintf(stderr, "Não é possível utilizar a flag --file com a flag --randomico\n");
+    // Validações
+    if (!LER_ARQUIVO && TAM_VETOR == 0){
+        printf("A quantidade de elementos do vetor deve ser maior do que zero. Informe corretamente com a flag --tamanho_vetor\n");
         exit(1);
     }
-    if (!READ_FILE || !RANDOMICO) {
+    if (LER_ARQUIVO && RANDOMICO) {
+        fprintf(stderr, "Não é possível utilizar a flag --arquivo com a flag --randomico\n");
+        exit(1);
+    }
+    if (!LER_ARQUIVO && !RANDOMICO) {
         RANDOMICO = 1;
     }
     if(NTHREADS < 1) {
@@ -50,16 +62,19 @@ void ler_parametros(int qtd_params, char *params[]){
         exit(1);
     }
 
-    if (DEBUG) printf("Ordenando vetor com %lld elementos com %d threads\n", TAM_VETOR, NTHREADS);
 };
 
-void ler_vetor_em_arquivo(char *filename){
-    if (DEBUG) printf("Lendo o arquivo: %s\n", filename);
+void ler_vetor_em_arquivo(char *nome_arquivo){
+    if (DEBUG) printf("Lendo o arquivo: %s\n", nome_arquivo);
     
-    FILE *myFile;
-    myFile = fopen(filename, "r");
+    FILE *arquivo;
+    arquivo = fopen(nome_arquivo, "r");
+    if (arquivo == NULL){
+        printf("ERRO: Não foi possível abrir o arquivo %s\n", nome_arquivo);
+        exit(1);
+    }
 
-    fscanf(myFile, "%lld", &TAM_VETOR);
+    fscanf(arquivo, "%lld", &TAM_VETOR);
     
     VETOR = malloc(TAM_VETOR * sizeof(int)); 
     if(!VETOR){
@@ -67,10 +82,10 @@ void ler_vetor_em_arquivo(char *filename){
         exit(1);
     }
 
-    if (DEBUG) printf("Lendo %lld elementos do arquivo\n", TAM_VETOR);
+    if (DEBUG) printf("Lendo %lld elemento(s) do arquivo com %d thread(s)\n", TAM_VETOR, NTHREADS);
     
     for (int i=0; i<TAM_VETOR; i++)
-        fscanf(myFile, "%d", &VETOR[i]);
+        fscanf(arquivo, "%d", &VETOR[i]);
 }
 
 void validar_vetor_ordenado(){
@@ -110,19 +125,22 @@ int main(int argc, char *argv[]){
                   validação dos cenários.
 
         Parâmetros:
-            Quantidade de elementos no vetor: <long int> primeiro parâmetro.
-            Quantidade de threads: <int> segundo parâmetro.
             Flag "--teste": poderá receber opcionalmente a flag para rodar os testes unitários.
-                            Deve ser o último parâmetro a ser informado.
+            Flag "--arquivo": permite enviar um arquivo para o vetor ser ordenado.
+                              Na primeira linha encontra-se a quantidade de elementos e a quantidade de threads separados por espaço.
+                              Na segunda, encontra-se os elementos do vetor separados por espaço.
+            Flag "--output": exibe o resultado da ordenação no console.
+            Flag "--debug": exibe resultados de log como vetor antes e depois e o tempo da ordenação.
+            Flag "--sumario": exibe o tempo que levou para ordenar.
+            Flag "--validar": realiza um teste de caixa preta da ordenação e exibe o resultado final no console.
 
         Retorno:
-            Não há. Apenas há exibição no console.
-
+            Não há. Apenas há exibição no console caso sejam passadas as flags corretas.
     */
 
     ler_parametros(argc, argv);
     
-    if(READ_FILE) ler_vetor_em_arquivo(FILENAME);
+    if(LER_ARQUIVO) ler_vetor_em_arquivo(NOME_ARQUIVO);
 
     if(RANDOMICO) inicializa_randomico();
 
