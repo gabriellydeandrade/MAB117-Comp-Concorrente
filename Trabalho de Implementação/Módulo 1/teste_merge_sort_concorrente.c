@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
-#include "main.h"
+#include "merge.h"
 
 #define ANSI_COR_FALHA     "\x1b[31m"
 #define ANSI_COR_SUCESSO   "\x1b[32m"
