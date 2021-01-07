@@ -1,9 +1,9 @@
 // Cabeçalho utilizado no programa concorrente
-int *merge_sort_concorrente(int tamanho_vetor, int *vetor, int qtd_threads);
+int *merge_sort_concorrente(long long int tamanho_vetor, int *vetor, int qtd_threads);
 void merge_sort(int *vetor, int inicio, int fim);
 void merge(int *vetor, int inicio, int meio, int fim);
 void *tarefa(void *arg);
-void imprime_vetor(int tamanho_vetor, int *vetor);
+void imprime_vetor(long long int tamanho_vetor, int *vetor);
 
 // Cabeçalho utilizado no arquivo de testes
 void teste();

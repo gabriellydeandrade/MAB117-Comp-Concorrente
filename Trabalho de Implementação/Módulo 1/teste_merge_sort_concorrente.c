@@ -22,7 +22,7 @@ int compara_se_vetores_sao_iguais(int *vetor_resultado, int *vetor_esperado, int
 }
 
 void testa_se_retorna_vetor_ordenado(){
-    int tamanho_vetor = 4;
+    long long int tamanho_vetor = 4;
     int vetor_esperado[] = {0, 1, 5, 10};
     int sucesso = 1;
 
@@ -48,7 +48,7 @@ void testa_se_retorna_vetor_ordenado(){
 }
 
 void testa_se_retorna_vetor_igual_se_ele_ja_for_ordenado(){
-    int tamanho_vetor = 4;
+    long long int tamanho_vetor = 4;
     int vetor_esperado[] = {0, 1, 5, 10};
     int sucesso = 1;
 
@@ -74,7 +74,7 @@ void testa_se_retorna_vetor_igual_se_ele_ja_for_ordenado(){
 }
 
 void testa_se_ordena_vetor_ordenado_em_ordem_decrescente(){
-    int tamanho_vetor = 11;
+    long long int tamanho_vetor = 11;
     int vetor_esperado[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     int sucesso = 1;
 
@@ -100,7 +100,7 @@ void testa_se_ordena_vetor_ordenado_em_ordem_decrescente(){
 }
 
 void testa_se_ordena_corretamente_independente_da_quantidade_de_threads(){
-    int tamanho_vetor = 10;
+    long long int tamanho_vetor = 10;
     int vetor_esperado[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 
     for (int qtd_threads=1; qtd_threads<tamanho_vetor; qtd_threads++){
