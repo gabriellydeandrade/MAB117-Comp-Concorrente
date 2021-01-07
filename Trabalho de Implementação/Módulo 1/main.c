@@ -43,8 +43,6 @@ void ler_parametros(int qtd_params, char *params[]){
         if(!strncmp(params[i], "--sumario", 9)) SUMARIO=1;
     }
 
-    if (!LER_ARQUIVO && DEBUG) printf("Ordenando vetor com %lld elementos com %d threads\n", TAM_VETOR, NTHREADS);
-
     // Validações
     if (!LER_ARQUIVO && TAM_VETOR == 0){
         printf("A quantidade de elementos do vetor deve ser maior do que zero. Informe corretamente com a flag --tamanho_vetor\n");
@@ -61,6 +59,12 @@ void ler_parametros(int qtd_params, char *params[]){
         fprintf(stderr, "O número de threads deve ser maior que zero\n");
         exit(1);
     }
+    if(!LER_ARQUIVO && NTHREADS > TAM_VETOR) {
+        NTHREADS = TAM_VETOR;
+        if (DEBUG) fprintf(stderr, "O número de threads é maior que o tamanho do vetor. Setando quantidade de threads para %lld\n", TAM_VETOR);
+    }
+
+    if (!LER_ARQUIVO && DEBUG) printf("Ordenando vetor com %lld elementos com %d threads\n", TAM_VETOR, NTHREADS);
 
 };
 
