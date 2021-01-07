@@ -10,27 +10,28 @@
 #define ANSI_COR_PADRAO   "\x1b[0m"
 
 int DEBUG = 0;
-int VALIDA = 0;
+int VALIDAR = 0;
 int RANDOMICO = 0;
 int NTHREADS = 1;
 int READ_FILE = 0;
 char *FILENAME;
-int TAM_VETOR;
+long long int TAM_VETOR;
 int *VETOR;
-
-// limitar qtd de threads
-// passar por arquivo
-// 
+int OUTPUT = 0;
 
 int ler_parametros(int qtd_params, char *params[]){
     for(int i=1; i<qtd_params; i++){
         if(!strncmp(params[i], "--teste", 7)){ teste(); return 0;};
         if(!strncmp(params[i], "--debug", 7)) DEBUG=1;
-        if(!strncmp(params[i], "--validar", 9)) VALIDA=1;
+        if(!strncmp(params[i], "--validar", 9)) VALIDAR=1;
         if(!strncmp(params[i], "--threads", 9)) NTHREADS=atoi(params[++i]);
         if(!strncmp(params[i], "--file", 6)){ READ_FILE=1; FILENAME=params[++i]; };
         if(!strncmp(params[i], "--randomico", 11)) RANDOMICO=1;
+        if(!strncmp(params[i], "--output", 8)) OUTPUT=1;
     };
+
+    if (DEBUG) printf("Ordenando vetor com %d threads\n", NTHREADS);
+
     return 0;
 };
 
@@ -40,7 +41,7 @@ void ler_vetor_em_arquivo(char *filename){
     FILE *myFile;
     myFile = fopen(filename, "r");
 
-    fscanf(myFile, "%d", &TAM_VETOR);
+    fscanf(myFile, "%lld", &TAM_VETOR);
     
     VETOR = malloc(TAM_VETOR * sizeof(int)); 
     if(!VETOR){
@@ -48,11 +49,22 @@ void ler_vetor_em_arquivo(char *filename){
         exit(1);
     }
 
-    if (DEBUG) printf("Lendo %d de elementos do arquivo\n", TAM_VETOR);
+    if (DEBUG) printf("Lendo %lld elementos do arquivo\n", TAM_VETOR);
     
     for (int i=0; i<TAM_VETOR; i++)
         fscanf(myFile, "%d", &VETOR[i]);
+}
 
+void validar_vetor_ordenado(){
+    for(int i=0; i<TAM_VETOR-1; i++){
+        int atual = VETOR[i];
+        int proximo = VETOR[i+1];
+        if(atual > proximo){
+            fprintf(stderr, "Erro ao ordenar vetor %d > %d\n", atual, proximo);
+            exit(1);
+        }
+    }
+    printf("Vetor ordenado de forma correta!\n");
 }
 
 int main(int argc, char *argv[]){
@@ -74,6 +86,7 @@ int main(int argc, char *argv[]){
     */
 
     ler_parametros(argc, argv);
+    
     if(READ_FILE){
         ler_vetor_em_arquivo(FILENAME);
     }
@@ -98,10 +111,12 @@ int main(int argc, char *argv[]){
 
     GET_TIME(tempo_fim);
     tempo_delta = tempo_fim - tempo_inicio;
-    printf("Tempo sequencial: %lf\n\n", tempo_delta);
+    if (DEBUG) printf("Tempo para ordenação: %lf\n", tempo_delta);
 
     if (DEBUG) printf("Vetor depois \n");
-    if (DEBUG) imprime_vetor(TAM_VETOR, VETOR);
+    if (OUTPUT || DEBUG) imprime_vetor(TAM_VETOR, VETOR);
+
+    if (VALIDAR) validar_vetor_ordenado();
 
     // Libera memória do vetor alocado dinamicamente
     free(VETOR);
