@@ -18,21 +18,31 @@ char *FILENAME;
 long long int TAM_VETOR;
 int *VETOR;
 int OUTPUT = 0;
+int SUMARIO = 0;
 
-int ler_parametros(int qtd_params, char *params[]){
+void ler_parametros(int qtd_params, char *params[]){
     for(int i=1; i<qtd_params; i++){
-        if(!strncmp(params[i], "--teste", 7)){ teste(); return 0;};
+        if(!strncmp(params[i], "--teste", 7)){ teste(); exit(0);};
         if(!strncmp(params[i], "--debug", 7)) DEBUG=1;
         if(!strncmp(params[i], "--validar", 9)) VALIDAR=1;
         if(!strncmp(params[i], "--threads", 9)) NTHREADS=atoi(params[++i]);
         if(!strncmp(params[i], "--file", 6)){ READ_FILE=1; FILENAME=params[++i]; };
         if(!strncmp(params[i], "--randomico", 11)) RANDOMICO=1;
         if(!strncmp(params[i], "--output", 8)) OUTPUT=1;
+        if(!strncmp(params[i], "--sumario", 9)) SUMARIO=1;
     };
 
     if (DEBUG) printf("Ordenando vetor com %d threads\n", NTHREADS);
 
-    return 0;
+    // Validações
+    if (READ_FILE && RANDOMICO) {
+        fprintf(stderr, "Não é possível utilizar a flag --file com a flag --randomico\n");
+        exit(1);
+    };
+    if(NTHREADS < 1) {
+        fprintf(stderr, "O número de threads deve ser maior que zero\n");
+        exit(1);
+    };
 };
 
 void ler_vetor_em_arquivo(char *filename){
@@ -67,6 +77,17 @@ void validar_vetor_ordenado(){
     printf("Vetor ordenado de forma correta!\n");
 }
 
+void inicializa_randomico(){
+    time_t t;
+
+    // Inicializa a semente randômica que iremos usar na inicialização
+    srand((unsigned) time(&t));
+
+    for (int i = 0; i < TAM_VETOR; i++)
+        VETOR[i] = rand() % 100;
+};
+
+
 int main(int argc, char *argv[]){
     double tempo_inicio, tempo_fim, tempo_delta;
 
@@ -87,19 +108,9 @@ int main(int argc, char *argv[]){
 
     ler_parametros(argc, argv);
     
-    if(READ_FILE){
-        ler_vetor_em_arquivo(FILENAME);
-    }
+    if(READ_FILE) ler_vetor_em_arquivo(FILENAME);
 
-    if(RANDOMICO){        
-        time_t t;                
-
-        // Inicializa a semente randômica que iremos usar na inicialização
-        srand((unsigned) time(&t));
-
-        for (int i = 0; i < TAM_VETOR; i++)
-            VETOR[i] = rand() % 100;
-    }
+    if(RANDOMICO) inicializa_randomico();
 
     if (DEBUG) printf("Vetor antes \n");
     if (DEBUG) imprime_vetor(TAM_VETOR, VETOR);
@@ -111,7 +122,7 @@ int main(int argc, char *argv[]){
 
     GET_TIME(tempo_fim);
     tempo_delta = tempo_fim - tempo_inicio;
-    if (DEBUG) printf("Tempo para ordenação: %lf\n", tempo_delta);
+    if (DEBUG || SUMARIO) printf("Tempo para ordenação: %lf\n", tempo_delta);
 
     if (DEBUG) printf("Vetor depois \n");
     if (OUTPUT || DEBUG) imprime_vetor(TAM_VETOR, VETOR);
