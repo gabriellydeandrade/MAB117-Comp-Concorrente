@@ -10,6 +10,7 @@ thread 4 imprime a frase “boa tarde!”. ****/
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define NTHREADS  4
 
@@ -17,22 +18,19 @@ int indice_saudacao = 0;
 char saudacao[4][11] = {"tudo bem?", "bom dia!", "até mais!", "boa tarde!"};
 pthread_mutex_t mutex;
 pthread_cond_t condicao;
+int debug = 0;
 
 void *saudacao1(void *args) {
     int * thread_id = (int *) args;
-    int boba1, boba2;
 
-    printf("T%d: começou\n", *thread_id + 1);
-
-    /* faz alguma coisa para gastar tempo... */
-    boba1 = 10000; boba2 = -10000; while (boba2 < boba1) boba2++;
+    if (debug) printf("T%d: começou\n", *thread_id + 1);
 
     printf("T%d: %s \n", *thread_id + 1, saudacao[*thread_id]);
 
     pthread_mutex_lock(&mutex);
     indice_saudacao++;
     if (indice_saudacao == 2){
-        printf("T%d: vai sinalizar a condicao \n", *thread_id + 1);
+        if (debug) printf("T%d: vai sinalizar a condicao \n", *thread_id + 1);
         pthread_cond_broadcast(&condicao);
     }
     pthread_mutex_unlock(&mutex);
@@ -42,18 +40,14 @@ void *saudacao1(void *args) {
 
 void *saudacao2(void *args) {
     int * thread_id = (int *) args;
-    int boba1, boba2;
 
-    printf("T%d: começou \n", *thread_id + 1);
-
-    /* faz alguma coisa para gastar tempo... */
-    boba1 = 10000; boba2 = -10000; while (boba2 < boba1) boba2++;
+    if (debug) printf("T%d: começou \n", *thread_id + 1);
 
     pthread_mutex_lock(&mutex);
     if (indice_saudacao < 2){
-        printf("T%d: vai se bloquear \n", *thread_id + 1);
+        if (debug) printf("T%d: vai se bloquear \n", *thread_id + 1);
         pthread_cond_wait(&condicao, &mutex);
-        printf("T%d: recebeu sinal e mutex realocado \n", *thread_id + 1);
+        if (debug) printf("T%d: recebeu sinal e mutex realocado \n", *thread_id + 1);
     }
     printf("T%d %s \n", *thread_id + 1, saudacao[*thread_id]);
     indice_saudacao++;
@@ -63,6 +57,10 @@ void *saudacao2(void *args) {
 }
 
 int main(int argc, char *argv[]) {
+    if (argc > 1){
+        if (!strncmp(argv[1], "--debug", 7)) debug = 1;
+    }
+
     pthread_t thread_ids_sistema[NTHREADS];
     int thread_ids_local[NTHREADS] = {0, 1, 2, 3};
 
@@ -91,7 +89,7 @@ int main(int argc, char *argv[]) {
             return 1;
         }
     }
-    printf("\nFIM\n");
+    if (debug) printf("\nFIM\n");
 
     pthread_mutex_destroy(&mutex);
     pthread_cond_destroy(&condicao);
