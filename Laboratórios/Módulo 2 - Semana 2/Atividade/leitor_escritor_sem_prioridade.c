@@ -73,10 +73,11 @@ void * leitor (void * arg) {
 
         double total = 0;
         char buffer[20 * (TAM_VETOR + 2)] = "";
+        char *ponteiro_buffer = buffer;
 
-        sprintf(buffer, "L[%d] == vetor lido == ", *id);
+        sprintf(ponteiro_buffer, "L[%d] == vetor lido == ", *id);
         for (int i=0; i < TAM_VETOR; i++){
-            sprintf(buffer, "%s%d ", buffer,vetor[i]);
+            sprintf(ponteiro_buffer, "%s%d ", buffer,vetor[i]);
             total += vetor[i];
         }
         printf("%s == média == %.2f \n", buffer, total / TAM_VETOR);
