@@ -3,9 +3,10 @@
 /* Laboratório: 6 */
 /* Implementando um programa concorrente para somar vetores */
 
+
 class Vetor {
-  static final int tamanhoVetor = 5;
-  private int[] vetor = new int[tamanhoVetor];
+  private int tamanhoVetor;
+  private int[] vetor;
 
   // Inicialização do vetor com valores pré-definidos
   public void inicializa(){
@@ -15,7 +16,10 @@ class Vetor {
   }
 
   // Construtor do vetor (vetor começa vazio)
-  public Vetor(){
+  public Vetor(int tamanhoVetor){
+    this.tamanhoVetor = tamanhoVetor;
+    this.vetor = new int[tamanhoVetor];
+
     for (int i=0; i<tamanhoVetor; i++){
       vetor[i] = 0;
     }
@@ -24,15 +28,16 @@ class Vetor {
   // Impressão do vetor
   public void imprime(){
     for (int i=0; i<tamanhoVetor; i++){
-      System.out.println(vetor[i]);
+      System.out.print(vetor[i] + " ");
     }
+    System.out.print("\n");
   }
 
   public int tamanho(){
     return this.vetor.length;
   }
 
-  public int[] pega(){
+  public int[] vetor(){
     return this.vetor;
   }
 
@@ -46,52 +51,63 @@ class TarefaSoma extends Thread {
   Vetor A;
   Vetor B;
   Vetor C;
+  int quantidadeThreads;
 
-  // public TarefaSoma(int vetor[], int posicaoInicial, int posicaoFinal){
-  //   this.vetor = vetor;
-  //   this.posicaoInicial = posicaoInicial;
-  //   this.posicaoFinal = posicaoFinal;
-  // }
-
-  public TarefaSoma(Vetor A, Vetor B, Vetor C){
+  public TarefaSoma(int id, Vetor A, Vetor B, Vetor C, int quantidadeThreads){
+    this.id = id;
     this.A = A;
     this.B = B;
     this.C = C;
+    this.quantidadeThreads = quantidadeThreads;
   }
 
   // Tarefa a ser executada pelas threads
   public void run(){
-    System.out.println("Thread " + this.id + " iniciou!");
-    for (int i=0; i<A.tamanho(); i++) {
+    // System.out.println("Thread " + this.id + " iniciou!");
+    for (int i=this.id; i<A.tamanho(); i+=quantidadeThreads) {
 
-       C.pega()[i] = A.pega()[i] + B.pega()[i]; // Soma dos vetores
+       C.vetor()[i] = A.vetor()[i] + B.vetor()[i]; // Soma dos vetores
     }
-    System.out.println("Thread " + this.id + " terminou!");
+    // System.out.println("Thread " + this.id + " terminou!");
   }
 
 }
 
-class SomaVetores {
+public class SomaVetores{
   // Quantidade de threads
-  static final int quantidadeThreads = 1;
 
   public static void main(String[] args){
-    Vetor A = new Vetor();
-    Vetor B = new Vetor();
-    Vetor C = new Vetor();
+    int quantidadeThreads;
+    int tamanhoVetor;
+
+    if (args.length > 1) {
+      quantidadeThreads = Integer.parseInt(args[0]);
+      tamanhoVetor =  Integer.parseInt(args[1]);
+    }
+    else {
+      System.out.println("Informe a quantidade de threads e o tamanho do vetor");
+      return;
+    }
+
+    Vetor A = new Vetor(tamanhoVetor);
+    Vetor B = new Vetor(tamanhoVetor);
+    Vetor C = new Vetor(tamanhoVetor);
 
     // Inicializa vetores A e B com valores pré-definidos
     A.inicializa();
     B.inicializa();
 
-    Thread[] threads = new Thread[quantidadeThreads];
+    System.out.println("Valor do vetor A:");
+    A.imprime();
 
-    // Recurso encapsulado que será utilziado por todas as threads
-    // (se não for tratado) pode ter condição de corrida
+    System.out.println("Valor do vetor B:");
+    B.imprime();
+
+    Thread[] threads = new Thread[quantidadeThreads];
 
     //Cria as threads
     for (int i=0; i<threads.length; i++) {
-       threads[i] = new TarefaSoma(A, B, C);
+       threads[i] = new TarefaSoma(i, A, B, C, quantidadeThreads);
     }
 
     //Inicia as threads
