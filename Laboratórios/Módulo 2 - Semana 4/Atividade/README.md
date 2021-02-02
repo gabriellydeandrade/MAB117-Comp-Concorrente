@@ -20,7 +20,7 @@
   <summary>Sumário</summary>
   <ol>
   <li>
-	  <a href="#laboratorio">Laboratório</a>
+	  <a href="#laboratório">Laboratório</a>
   </li>
     <li>
         <a href="#validações">Validações</a>
@@ -79,7 +79,7 @@ Para executar a validação, será necessário rodar o validador passando o arqu
     ./haskell < in
   ```
 
-Caso não seja exibida nenhuma mensagem com erro no terminal e aparecer somente "Log:", a execução ocorreu conforme o esperado.
+Caso não seja exibida nenhuma mensagem com erro no terminal e aparecer somente "Tudo ok!", a execução ocorreu conforme o esperado.
 
 
 ### Python
