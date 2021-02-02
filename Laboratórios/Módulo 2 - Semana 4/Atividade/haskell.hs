@@ -49,8 +49,8 @@ defaultEstado = Estado
 
 solve :: [String] -> String
 solve =
-      (\ (s, _) -> s )
-    . foldl validate ("Log:", defaultEstado)
+      (\ (s, _) -> if s == "" then "Tudo ok!" else "Log:"++s )
+    . foldl validate ("", defaultEstado)
     . map parse
 
 -- validate
