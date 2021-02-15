@@ -1,0 +1,9 @@
+// Cabeçalho utilizado no programa concorrente
+int *quicksort_concorrente(long long int tamanho_vetor, int *vetor, int qtd_threads);
+void quicksort(int *vetor, int inicio, int fim);
+int particao(int *vetor, int inicio, int fim);
+void *tarefa(void *arg);
+void imprime_vetor(long long int tamanho_vetor, int *vetor);
+
+// Cabeçalho utilizado no arquivo de testes
+void teste();
