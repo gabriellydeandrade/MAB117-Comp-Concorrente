@@ -10,7 +10,7 @@ questões colocadas.
 
 O algoritmo abaixo implementa uma solução para o problema dos leitores e escritores
 (mais de um leitor pode ler ao mesmo tempo; apenas um escritor pode escrever de cada
-vez e nenhum leitor pode estar lendo) com prioridade para escrita (sempre que ha um escritor esperando, o acesso para novos leitores e bloqueado até que o escritor seja atendido).
+vez e nenhum leitor pode estar lendo) com prioridade para escrita (sempre que ha um escritor esperando, o acesso para novos leitores é bloqueado até que o escritor seja atendido).
 
 OBS.: Algoritmo encontrado no [pdf da atividade](lab8.pdf)
 
@@ -26,8 +26,11 @@ para leitura e não garantindo uma prioridade para escritores na maneira que foi
 
 #### (b) É possível simplificar esse código (reduzir o uso dos mecanismos de sincronização)?
 
-Os mecanismos de sincronização relacionados com o mutex precisam ser utilizados para evitar condição de corrida. Logo, o
-`em_e` e `em_l` não podem ser reduzidos.
+Os mecanismos de sincronização relacionados com o mutex precisam ser utilizados para evitar condição de corrida. 
+Na implementação, são utilizados dois mutex para acessar variáveis globais diferentes. Poderíamos reduzir para ter somente
+um mutex, mas realizando de forma separada estaríamos permitindo que outra thread que esteja utilizando uma outra
+variável global seja executada, tendo um menor overhead na aplicação. 
+Logo, o `em_e` e `em_l` é aconselhável não serem reduzidos para somente um mutex.
 
 Não há como reduzir também o uso dos mecanismos de sincronização relacionados com condição. Uma vez que queremos prioridade
 para os escritores, precisamos garantir que assim que chegar novas threads escritoras, essas tarefas sejam executadas logo a 
@@ -45,6 +48,17 @@ O programa encontra-se no arquivo [semaforo_com_locks.c](semaforo_com_locks.c)
 
 #### (e) Descreva se os locks usados são recursivos ou não e justifique a escolha feita.
 
-1- Locks de mutex
+**1- Locks de mutex**
+
 Esses locks utilizados não são recursivos pois eles foram utilizado somente para o uso do mutex, esse uso é para não acessar
 regiões críticas do código que podem gerar condições de corrida. Trocamos o uso do semáforo pelo pthread_mutex_lock.
+Como foi modificado o trecho para usar a seção crítica, estaremos utilizando apenas um mutex.
+
+**2- Locks de condição**
+
+Foi utilizado locks recursivos para validar as condições de leitura e escrita. Para permitir a mesma lógica de prioridade para
+escritores, foi utilizado uma variável a mais auxiliar para informar o tamanho da fila que estará se formando para a escrita.
+Se essa fila não estiver vazia, novos leitores não poderão iniciar seus trabalhos e eles deverão ficar retidos no
+pthread_cond_wait. O uso do lock recursivo é necessário pois como as tarefas podem demorar para ganhar CPU novamente na execução,
+poderíamos ter um furo na nossa lógica de permitir leitura e escrita no momento certo pois a condição não seria validada
+novamente.
