@@ -39,6 +39,12 @@ exclusão mútua para a escrita).
 
 O programa encontra-se no arquivo [semaforo_exclusivo.c](semaforo_exclusivo.c)
 
-#### (d) Altere o codigo das duas threads substituindo o maior número possível de semáforos por locks.
+#### (d) Altere o código das duas threads substituindo o maior número possível de semáforos por locks.
+
+O programa encontra-se no arquivo [semaforo_com_locks.c](semaforo_com_locks.c)
 
 #### (e) Descreva se os locks usados são recursivos ou não e justifique a escolha feita.
+
+1- Locks de mutex
+Esses locks utilizados não são recursivos pois eles foram utilizado somente para o uso do mutex, esse uso é para não acessar
+regiões críticas do código que podem gerar condições de corrida. Trocamos o uso do semáforo pelo pthread_mutex_lock.
