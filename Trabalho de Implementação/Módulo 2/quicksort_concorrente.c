@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-#define TAM_BUFFER 10
+#define TAM_BUFFER 100
 
 typedef struct {
     int *vetor;
@@ -23,22 +23,22 @@ void *consumidor_tarefa(void *arg);
 void imprime_vetor(long long int tamanho_vetor, int *vetor);
 
 threadArgs *buffer[TAM_BUFFER];
-int contador=0, entrada=0, saida=0;
+int contador_buffer=0, entrada=0, saida=0, contador_tarefas_enviadas=0, contador_tarefas_recebidas=0;
 
 pthread_mutex_t mutex;
 pthread_cond_t cond_cons, cond_prod;
 
 void insere_buffer(threadArgs *item) {
     pthread_mutex_lock(&mutex);
-    printf("P quer inserir\n");
-    while(contador == TAM_BUFFER) {
+    printf("P quer inserir, contador do buffer: %d\n", contador_buffer);
+    while(contador_buffer == TAM_BUFFER) {
         printf("P bloqueou\n");
         pthread_cond_wait(&cond_prod, &mutex);
         printf("P desbloqueou\n");
     }
     buffer[entrada] = item;
     entrada = (entrada + 1) % TAM_BUFFER;
-    contador++;
+    contador_buffer++;
     printf("P inseriu\n");
     pthread_mutex_unlock(&mutex);
     pthread_cond_signal(&cond_cons);
@@ -47,17 +47,16 @@ void insere_buffer(threadArgs *item) {
 threadArgs *retira_buffer(int id) {
     threadArgs *item;
     pthread_mutex_lock(&mutex);
-    printf("C[%d] quer consumir\n", id);
-    while(contador == 0) {
+    printf("C[%d] quer consumir tarefa %d/%d \n", id, contador_tarefas_recebidas, contador_tarefas_enviadas);
+    while(contador_buffer == 0) {
         printf("C[%d] bloqueou\n", id);
         pthread_cond_wait(&cond_cons, &mutex);
         printf("C[%d] desbloqueou\n", id);
     }
     item = buffer[saida];
     saida = (saida + 1) % TAM_BUFFER;
-    contador--;
-    printf("C[%d] consumiu\n", id);
-    printf("Inicio: %d, fim: %d \n", item->inicio, item->fim);
+    contador_buffer--;
+    printf("C[%d] consumiu tarefa %d/%d \n", id, contador_tarefas_recebidas, contador_tarefas_enviadas);
     pthread_mutex_unlock(&mutex);
     pthread_cond_signal(&cond_prod);
     return item;
@@ -144,6 +143,11 @@ void produtor_tarefa(int *vetor, int inicio, int fim){
     arg->fim = fim;
     arg->vetor = vetor;
 
+    pthread_mutex_lock(&mutex);
+    contador_tarefas_enviadas++;
+    pthread_mutex_unlock(&mutex);
+
+    // FIXME quando o buffer está cheio ele leva o lock junto e a aplicação entra em deadlock (ocorre para vetores maiores que o buffer
     insere_buffer(arg);
 
 }
@@ -152,9 +156,18 @@ void *consumidor_tarefa(void * arg) {
     int *id = (int *) arg;
     threadArgs *item;
     printf("Inicio da thread[%d]\n", *id);
-    while(1) {
+
+    // FIXME esse loop está gerando algumas incongruencias
+    while(contador_tarefas_recebidas < contador_tarefas_enviadas) {
+        pthread_mutex_lock(&mutex);
+        contador_tarefas_recebidas++;
+        pthread_mutex_unlock(&mutex);
+
         item = retira_buffer(*id);
         quicksort(item->vetor, item->inicio, item->fim);
+
+        printf("tarefas %d/%d \n", contador_tarefas_recebidas, contador_tarefas_enviadas);
+
     }
 
     pthread_exit(NULL);
