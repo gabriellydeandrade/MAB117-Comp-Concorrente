@@ -48,13 +48,24 @@ O programa encontra-se no arquivo [semaforo_com_locks.c](semaforo_com_locks.c)
 
 #### (e) Descreva se os locks usados são recursivos ou não e justifique a escolha feita.
 
-**1- Locks de mutex**
+Para o programa [semaforo_com_locks.c](semaforo_com_locks.c) modificamos as variáveis de exclusão mútua para utilizar o
+mutex ao invés do semáforo com pthread_mutex_lock. Nesse caso não foi utilizado nenhum lock recursivo pois se trata apenas
+de acesso á região crítica do código (variável global).
+
+
+**Extra:**
+
+Podemos também modificar a solução para não ter mais nenhum uso de semáforo, mas pra isso precisaremos de uma variável 
+adicional para controlar a quantidade de tarefas que querem escrever para que elas tenham prioridade. Esta versão foi 
+desenvolvida no arquivo [sem_semaforo.c](sem_semaforo.c)
+
+1- Locks de mutex
 
 Esses locks utilizados não são recursivos pois eles foram utilizado somente para o uso do mutex, esse uso é para não acessar
 regiões críticas do código que podem gerar condições de corrida. Trocamos o uso do semáforo pelo pthread_mutex_lock.
 Como foi modificado o trecho para usar a seção crítica, estaremos utilizando apenas um mutex.
 
-**2- Locks de condição**
+2- Locks de condição
 
 Foi utilizado locks recursivos para validar as condições de leitura e escrita. Para permitir a mesma lógica de prioridade para
 escritores, foi utilizado uma variável a mais auxiliar para informar o tamanho da fila que estará se formando para a escrita.
