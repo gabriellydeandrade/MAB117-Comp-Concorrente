@@ -16,9 +16,15 @@ int NTHREADS = 1;
 int LER_ARQUIVO = 0;
 char *NOME_ARQUIVO;
 long long int TAM_VETOR;
-int *VETOR;
 int OUTPUT = 0;
 int SUMARIO = 0;
+
+void imprime_vetor(long long int tamanho_vetor, int *v){
+    for (int i=0; i<tamanho_vetor; i++){
+        printf("%d ", v[i]);
+    }
+    printf("\n");
+}
 
 void ler_parametros(int qtd_params, char *params[]){
     for(int i=1; i<qtd_params; i++){
@@ -68,7 +74,7 @@ void ler_parametros(int qtd_params, char *params[]){
 
 };
 
-void ler_vetor_em_arquivo(char *nome_arquivo){
+int * ler_vetor_em_arquivo(char *nome_arquivo){
     if (DEBUG) printf("Lendo o arquivo: %s\n", nome_arquivo);
     
     FILE *arquivo;
@@ -79,9 +85,9 @@ void ler_vetor_em_arquivo(char *nome_arquivo){
     }
 
     fscanf(arquivo, "%lld", &TAM_VETOR);
-    
-    VETOR = malloc(TAM_VETOR * sizeof(int)); 
-    if(!VETOR){
+
+    int *vetor = malloc(TAM_VETOR * sizeof(int));
+    if(!vetor){
         fprintf(stderr, "Não foi possível alocar memória para o vetor usando o malloc \n");
         exit(1);
     }
@@ -89,13 +95,15 @@ void ler_vetor_em_arquivo(char *nome_arquivo){
     if (DEBUG) printf("Lendo %lld elemento(s) do arquivo com %d thread(s)\n", TAM_VETOR, NTHREADS);
     
     for (int i=0; i<TAM_VETOR; i++)
-        fscanf(arquivo, "%d", &VETOR[i]);
+        fscanf(arquivo, "%d", &vetor[i]);
+
+    return vetor;
 }
 
-void validar_vetor_ordenado(){
+void validar_vetor_ordenado(int *vetor){
     for(int i=0; i<TAM_VETOR-1; i++){
-        int atual = VETOR[i];
-        int proximo = VETOR[i+1];
+        int atual = vetor[i];
+        int proximo = vetor[i+1];
         if(atual > proximo){
             fprintf(stderr, "Erro ao ordenar vetor %d > %d\n", atual, proximo);
             exit(1);
@@ -104,25 +112,28 @@ void validar_vetor_ordenado(){
     printf("Vetor ordenado de forma correta!\n");
 }
 
-void inicializa_randomico(){
+int *inicializa_randomico(){
     time_t t;
 
     // Inicializa a semente randômica que iremos usar na inicialização
     srand((unsigned) time(&t));
 
-    VETOR = malloc(TAM_VETOR * sizeof(int));
-    if(!VETOR){
+    int *vetor = malloc(TAM_VETOR * sizeof(int));
+    if(!vetor){
         fprintf(stderr, "Não foi possível alocar memória para o vetor usando o malloc \n");
         exit(1);
     }
 
     for (int i = 0; i < TAM_VETOR; i++)
-        VETOR[i] = rand() % 100;
-};
+        vetor[i] = rand() % 100;
+
+    return vetor;
+}
 
 
 int main(int argc, char *argv[]){
     double tempo_inicio, tempo_fim, tempo_delta;
+    int *vetor;
 
     /*
         Objetivo: Função principal que permite executar a ordenação de vetores ou chamar os testes de
@@ -146,29 +157,29 @@ int main(int argc, char *argv[]){
 
     ler_parametros(argc, argv);
     
-    if(LER_ARQUIVO) ler_vetor_em_arquivo(NOME_ARQUIVO);
+    if(LER_ARQUIVO) vetor = ler_vetor_em_arquivo(NOME_ARQUIVO);
 
-    if(RANDOMICO) inicializa_randomico();
+    if(RANDOMICO) vetor = inicializa_randomico();
 
     if (DEBUG) printf("Vetor antes \n");
-    if (DEBUG) imprime_vetor(TAM_VETOR, VETOR);
+    if (DEBUG) imprime_vetor(TAM_VETOR, vetor);
 
     // Chama a implementação do quicksort concorrente e adiciona tomada de tempo
     GET_TIME(tempo_inicio);
 
-    quicksort_concorrente(TAM_VETOR, VETOR, NTHREADS);
+    quicksort_concorrente(TAM_VETOR, vetor, NTHREADS);
 
     GET_TIME(tempo_fim);
     tempo_delta = tempo_fim - tempo_inicio;
     if (DEBUG || SUMARIO) printf("Tempo para ordenação: %lf\n", tempo_delta);
 
     if (DEBUG) printf("Vetor depois \n");
-    if (OUTPUT || DEBUG) imprime_vetor(TAM_VETOR, VETOR);
+    if (OUTPUT || DEBUG) imprime_vetor(TAM_VETOR, vetor);
 
-    if (VALIDAR) validar_vetor_ordenado();
+    if (VALIDAR) validar_vetor_ordenado(vetor);
 
     // Libera memória do vetor alocado dinamicamente
-    free(VETOR);
+    free(vetor);
 
     return 0;
 }

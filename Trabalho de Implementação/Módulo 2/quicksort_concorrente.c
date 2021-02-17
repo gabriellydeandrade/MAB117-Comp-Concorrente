@@ -20,7 +20,6 @@ void quicksort(int *vetor, int inicio, int fim);
 int particao(int *vetor, int inicio, int fim);
 void produtor_tarefa(int *vetor, int inicio, int fim);
 void *consumidor_tarefa(void *arg);
-void imprime_vetor(long long int tamanho_vetor, int *vetor);
 
 threadArgs *buffer[TAM_BUFFER];
 int contador_buffer=0, entrada=0, saida=0;
@@ -163,11 +162,4 @@ void *consumidor_tarefa(void * arg) {
     }
 
     pthread_exit(NULL);
-}
-
-void imprime_vetor(long long int tamanho_vetor, int *v){
-    for (int i=0; i<tamanho_vetor; i++){
-        printf("%d ", v[i]);
-    }
-    printf("\n");
 }
