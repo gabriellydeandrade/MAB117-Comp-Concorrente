@@ -85,6 +85,7 @@ int * ler_vetor_em_arquivo(char *nome_arquivo){
     }
 
     fscanf(arquivo, "%lld", &TAM_VETOR);
+    fscanf(arquivo, "%d", &NTHREADS);
 
     int *vetor = malloc(TAM_VETOR * sizeof(int));
     if(!vetor){
