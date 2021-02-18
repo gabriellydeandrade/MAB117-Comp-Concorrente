@@ -28,7 +28,6 @@ void imprime_vetor(long long int tamanho_vetor, int *v){
 
 void ler_parametros(int qtd_params, char *params[]){
     for(int i=1; i<qtd_params; i++){
-        if(!strncmp(params[i], "--teste", 7)){ teste(); exit(0);}
         if(!strncmp(params[i], "--debug", 7)) DEBUG=1;
         if(!strncmp(params[i], "--validar", 9)) VALIDAR=1;
         if(!strncmp(params[i], "--tamanho_vetor", 15)) {
@@ -142,7 +141,6 @@ int main(int argc, char *argv[]){
                   validação dos cenários.
 
         Parâmetros:
-            Flag "--teste": poderá receber opcionalmente a flag para rodar os testes unitários.
             Flag "--arquivo": permite enviar um arquivo para o vetor ser ordenado.
                               Na primeira linha encontra-se a quantidade de elementos e a quantidade de threads separados por espaço.
                               Na segunda, encontra-se os elementos do vetor separados por espaço.

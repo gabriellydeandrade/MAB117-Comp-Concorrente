@@ -6,7 +6,7 @@ Implementação de ordenação de vetor pelo método Quick Sort de modo concorre
 
 ## Compilação 
 
-    gcc -o main main.c quicksort_concorrente.c teste_quicksort_concorrente.c -Wall -pthread
+    gcc -o main main.c quicksort_concorrente.c -Wall -pthread
 
 ## Utilização
 
@@ -15,7 +15,6 @@ randômico.
 
 Execute a função **./main** com as seguintes obções de flags e parâmetros:
 
-- Flag "--teste": poderá receber opcionalmente a flag para rodar os testes unitários.
 - Flag "--arquivo": permite enviar um arquivo para o vetor ser ordenado.
                   Na primeira linha encontra-se a quantidade de elementos e a quantidade de threads separados por espaço.
                   Na segunda, encontra-se os elementos do vetor separados por espaço.
@@ -46,6 +45,4 @@ Execute a função **./main** com as seguintes obções de flags e parâmetros:
 
 ## Testes
 
-Execute os testes, após compilado, com a flag **--testes**
-
-    ./main --testes
+Para testar a execução, poderá ser utilizado o teste de caixa preta com a flag `--validar`
