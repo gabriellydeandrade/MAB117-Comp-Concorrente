@@ -22,7 +22,7 @@ Execute a função **./main** com as seguintes obções de flags e parâmetros:
 - Flag "--output": exibe o resultado da ordenação no console.
 - Flag "--debug": exibe resultados de log como vetor antes e depois e o tempo da ordenação.
 - Flag "--sumario": exibe o tempo que levou para ordenar.
-- Flag "--validar": realiza um teste de caixa preta da ordenação e exibe uma mensagem se foi ordenado correto ou não.
+- Flag "--validar": realiza um teste de caixa preta da ordenação e exibe uma mensagem se foi ordenado de forma correta ou não.
 - Flag "--tamanho_vetor": recebe o tamanho do vetor a ser ordenado.
 - Flag "--threads": recebe a quantidade de threads. Caso não seja definida o padrão é 1 thread (simulando comportamento sequencial).
 

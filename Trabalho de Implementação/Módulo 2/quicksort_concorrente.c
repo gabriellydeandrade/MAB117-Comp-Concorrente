@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-#define TAM_BUFFER 100
+#define TAM_BUFFER 100000
 
 typedef struct {
     int *vetor;
@@ -20,6 +20,7 @@ void quicksort(int *vetor, int inicio, int fim);
 int particao(int *vetor, int inicio, int fim);
 void produtor_tarefa(int *vetor, int inicio, int fim);
 void *consumidor_tarefa(void *arg);
+int validar_vetor_ordenado(int *vetor, int msg);
 
 threadArgs *buffer[TAM_BUFFER];
 int contador_buffer=0, entrada=0, saida=0;
@@ -29,31 +30,27 @@ pthread_cond_t cond_prod;
 
 void insere_buffer(threadArgs *item) {
     pthread_mutex_lock(&mutex);
-    printf("P quer inserir, contador do buffer: %d\n", contador_buffer);
+//    printf("P quer inserir na posição %d, contador do buffer: %d\n", entrada, contador_buffer);
     while(contador_buffer == TAM_BUFFER) {
-        printf("P bloqueou\n");
         pthread_cond_wait(&cond_prod, &mutex);
-        printf("P desbloqueou\n");
     }
     buffer[entrada] = item;
     entrada = (entrada + 1) % TAM_BUFFER;
     contador_buffer++;
-    printf("P inseriu\n");
     pthread_mutex_unlock(&mutex);
 }
 
 threadArgs *retira_buffer(int id) {
     threadArgs *item;
     pthread_mutex_lock(&mutex);
-    printf("C[%d] quer consumir tarefa \n", id);
     if (contador_buffer == 0){
         pthread_mutex_unlock(&mutex);
         return NULL;
     }
     item = buffer[saida];
-    saida = (saida + 1) % TAM_BUFFER;
     contador_buffer--;
-    printf("C[%d] consumiu tarefa buffer=%d\n", id, contador_buffer);
+//    printf("C[%d] consumiu tarefa na posição %d buffer=%d\n", id, saida, contador_buffer);
+    saida = (saida + 1) % TAM_BUFFER;
     pthread_mutex_unlock(&mutex);
     pthread_cond_signal(&cond_prod);
     return item;
@@ -93,7 +90,6 @@ int *quicksort_concorrente(long long int tamanho_vetor, int *vetor, int qtd_thre
             exit(1);
         }
     }
-
     return vetor;
 }
 
@@ -140,7 +136,7 @@ void produtor_tarefa(int *vetor, int inicio, int fim){
     arg->fim = fim;
     arg->vetor = vetor;
 
-    // FIXME quando o buffer está cheio ele leva o lock junto e a aplicação entra em deadlock (ocorre para vetores maiores que o buffer
+    // FIXME quando o buffer está cheio ele leva o lock junto e a aplicação entra em deadlock (ocorre para vetores bem maiores que o buffer)
     insere_buffer(arg);
 
 }
@@ -148,17 +144,16 @@ void produtor_tarefa(int *vetor, int inicio, int fim){
 void *consumidor_tarefa(void * arg) {
     int *id = (int *) arg;
     threadArgs *item;
-    printf("Inicio da thread[%d]\n", *id);
 
     while(1) {
 
         item = retira_buffer(*id);
 
-        if (item == NULL){
+        if (item != NULL && validar_vetor_ordenado(item->vetor, 0)){
             break;
         }
 
-        quicksort(item->vetor, item->inicio, item->fim);
+        if (item) quicksort(item->vetor, item->inicio, item->fim);
     }
 
     pthread_exit(NULL);

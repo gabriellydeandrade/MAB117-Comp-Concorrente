@@ -101,16 +101,17 @@ int * ler_vetor_em_arquivo(char *nome_arquivo){
     return vetor;
 }
 
-void validar_vetor_ordenado(int *vetor){
+int validar_vetor_ordenado(int *vetor, int msg){
     for(int i=0; i<TAM_VETOR-1; i++){
         int atual = vetor[i];
         int proximo = vetor[i+1];
         if(atual > proximo){
-            fprintf(stderr, "Erro ao ordenar vetor %d > %d\n", atual, proximo);
-            exit(1);
+            if (msg) fprintf(stderr, "Erro ao ordenar vetor %d > %d\n", atual, proximo);
+            return 0;
         }
     }
-    printf("Vetor ordenado de forma correta!\n");
+    if (msg) printf("Vetor ordenado de forma correta!\n");
+    return 1;
 }
 
 int *inicializa_randomico(){
@@ -148,7 +149,7 @@ int main(int argc, char *argv[]){
             Flag "--output": exibe o resultado da ordenação no console.
             Flag "--debug": exibe resultados de log como vetor antes e depois e o tempo da ordenação.
             Flag "--sumario": exibe o tempo que levou para ordenar.
-            Flag "--validar": realiza um teste de caixa preta da ordenação e exibe uma mensagem se foi ordenado correto ou não.
+            Flag "--validar": realiza um teste de caixa preta da ordenação e exibe uma mensagem se foi ordenado de forma correta ou não.
             Flag "--tamanho_vetor": recebe o tamanho do vetor a ser ordenado.
             Flag "--threads": recebe a quantidade de threads. Caso não seja definida o padrão é 1 thread (simulando comportamento sequencial).
 
@@ -177,7 +178,7 @@ int main(int argc, char *argv[]){
     if (DEBUG) printf("Vetor depois \n");
     if (OUTPUT || DEBUG) imprime_vetor(TAM_VETOR, vetor);
 
-    if (VALIDAR) validar_vetor_ordenado(vetor);
+    if (VALIDAR) validar_vetor_ordenado(vetor, 1);
 
     // Libera memória do vetor alocado dinamicamente
     free(vetor);
