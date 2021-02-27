@@ -1,10 +1,16 @@
+/*
+ * Ler a entrada pro argc e argv
+ * Fazer casos de teste
+ * Mudar o gera_arquivo para o primeiro termo ser long long int
+ * */
+
+
 #include <stdio.h>
 #include <pthread.h>
 #include <stdlib.h>
 
-
-#define N 10
-#define M 50
+#define N 50
+#define M 10
 
 typedef struct retorno_padrao_a{
     long long int pos_inicial, tamanho;
@@ -43,15 +49,18 @@ void *insere_buffer(void *args){
 
         // Escrita
 
+
         if (qtd_inteiros_faltantes > tamanho_bloco){
             qtd_inteiros_lidos = fread(buffer+(pos_escrita*tamanho_bloco), sizeof(int), tamanho_bloco, arquivo);
         } else {
             qtd_inteiros_lidos = fread(buffer+(pos_escrita*tamanho_bloco), sizeof(int), qtd_inteiros_faltantes, arquivo);
             ultimo_bloco = pos_escrita;
             tamanho_ultimo_bloco = qtd_inteiros_lidos;
+
         }
 
         qtd_inteiros_faltantes = qtd_inteiros_faltantes-qtd_inteiros_lidos;
+
 
         // Saida da escrita
 
@@ -121,7 +130,6 @@ void *padrao_a(void *args){
             }
         }
 
-
         // Saída da leitura
         pthread_mutex_lock(locks+pos_leitura);
         status_buffer[pos_leitura]--;
@@ -129,11 +137,11 @@ void *padrao_a(void *args){
         if (status_buffer[pos_leitura] == 0) pthread_cond_signal(&cond_escrita);
         pthread_mutex_unlock(locks+pos_leitura);
 
-        pos_leitura = (pos_leitura + 1) % tamanho_buffer;
-
         if (pos_leitura==ultimo_bloco){
             break;
         }
+
+        pos_leitura = (pos_leitura + 1) % tamanho_buffer;
     }
 
     if (tamanho_temp > tamanho_seq){
@@ -145,6 +153,8 @@ void *padrao_a(void *args){
     valores_identicos.pos_inicial = pos_inicial;
     valores_identicos.tamanho = tamanho_seq;
     valores_identicos.valor = valor;
+
+    printf("Padrao a saiu \n");
 
     return NULL;
 }
@@ -202,13 +212,12 @@ void *padrao_b(void *args){
         if (status_buffer[pos_leitura] == 0) pthread_cond_signal(&cond_escrita);
         pthread_mutex_unlock(locks+pos_leitura);
 
-        pos_leitura = (pos_leitura + 1) % tamanho_buffer;
-
         if (pos_leitura==ultimo_bloco){
             break;
         }
-    }
 
+        pos_leitura = (pos_leitura + 1) % tamanho_buffer;
+    }
     return NULL;
 
 }
@@ -262,11 +271,11 @@ void *padrao_c(void *args){
         if (status_buffer[pos_leitura] == 0) pthread_cond_signal(&cond_escrita);
         pthread_mutex_unlock(locks+pos_leitura);
 
-        pos_leitura = (pos_leitura + 1) % tamanho_buffer;
-
         if (pos_leitura==ultimo_bloco){
             break;
         }
+
+        pos_leitura = (pos_leitura + 1) % tamanho_buffer;
     }
 
     return NULL;
@@ -280,8 +289,8 @@ int main(int argc, char *argv[]){
     // TODO validar a qtd de argumentos e passar M e N
     nome_arquivo = argv[1];
 
-    tamanho_buffer = N;
-    tamanho_bloco = M;
+    tamanho_buffer = M;
+    tamanho_bloco = N;
 
     buffer = malloc(sizeof(int) * tamanho_buffer * tamanho_bloco);
     if (!buffer){
