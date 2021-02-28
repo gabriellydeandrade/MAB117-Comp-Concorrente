@@ -52,9 +52,7 @@ void *insere_buffer(void *args){
         pthread_mutex_lock(locks+pos_escrita);
 
         while(status_buffer[pos_escrita] > 0){ // Enquanto faltar threads para leitura
-            printf("Escrita bloqueada, pos_escrita=%d\n", pos_escrita);
             pthread_cond_wait(&cond_escrita, locks+pos_escrita);
-            printf("Escrita desbloqueada, pos_escrita=%d\n", pos_escrita);
         }
 
         pthread_mutex_unlock(locks+pos_escrita);
@@ -78,7 +76,6 @@ void *insere_buffer(void *args){
         pthread_mutex_lock(locks+pos_escrita);
         status_buffer[pos_escrita] = 3;
         pthread_mutex_unlock(locks+pos_escrita);
-        printf("Escrita escreveu, pos_escrita=%d, qtd_inteiros_lidos=%lld, qtd_faltante=%lld, status_buffer=%d\n", pos_escrita, qtd_inteiros_lidos, qtd_inteiros_faltantes, status_buffer[pos_escrita]);
 
         pos_escrita = (pos_escrita + 1) % tamanho_buffer;
 
@@ -107,9 +104,7 @@ void *padrao_a(void *args){
         pthread_mutex_lock(locks+pos_leitura);
 
         while(status_buffer[pos_leitura] == 0){ // Enquanto a linha estiver vazia
-            printf("Padrao a bloqueou %d\n", pos_leitura);
             pthread_cond_wait(&cond_leitura, locks+pos_leitura);
-            printf("Padrao a desbloqueou %d\n", pos_leitura);
         }
 
         pthread_mutex_unlock(locks+pos_leitura);
@@ -147,8 +142,6 @@ void *padrao_a(void *args){
         // Saída da leitura
         pthread_mutex_lock(locks+pos_leitura);
         status_buffer[pos_leitura]--;
-
-        printf("Padrao a leu pos_leitura=%d, status=%d\n", pos_leitura, status_buffer[pos_leitura]);
 
         if (status_buffer[pos_leitura] == 0) pthread_cond_signal(&cond_escrita);
 
@@ -192,9 +185,7 @@ void *padrao_b(void *args){
         pthread_mutex_lock(locks+pos_leitura);
 
         while(status_buffer[pos_leitura] == 0){ // Enquanto a linha estiver vazia
-            printf("Padrao b bloqueou %d\n", pos_leitura);
             pthread_cond_wait(&cond_leitura, locks+pos_leitura);
-            printf("Padrao b desbloqueou %d\n", pos_leitura);
         }
 
         pthread_mutex_unlock(locks+pos_leitura);
@@ -229,8 +220,6 @@ void *padrao_b(void *args){
         pthread_mutex_lock(locks+pos_leitura);
         status_buffer[pos_leitura]--;
 
-        printf("Padrao b leu pos_leitura=%d, status=%d\n", pos_leitura, status_buffer[pos_leitura]);
-
         if (status_buffer[pos_leitura] == 0) pthread_cond_signal(&cond_escrita);
 
         if (pos_leitura==ultimo_bloco){
@@ -264,9 +253,7 @@ void *padrao_c(void *args){
         pthread_mutex_lock(locks+pos_leitura);
 
         while(status_buffer[pos_leitura] == 0){ // Enquanto a linha estiver vazia
-            printf("Padrao c bloqueou %d\n", pos_leitura);
             pthread_cond_wait(&cond_leitura, locks+pos_leitura);
-            printf("Padrao c desbloqueou %d\n", pos_leitura);
         }
 
         pthread_mutex_unlock(locks+pos_leitura);
@@ -296,8 +283,6 @@ void *padrao_c(void *args){
         // Saída da leitura
         pthread_mutex_lock(locks+pos_leitura);
         status_buffer[pos_leitura]--;
-
-        printf("Padrao c leu pos_leitura=%d, status=%d\n", pos_leitura, status_buffer[pos_leitura]);
 
         if (status_buffer[pos_leitura] == 0) pthread_cond_signal(&cond_escrita);
 
