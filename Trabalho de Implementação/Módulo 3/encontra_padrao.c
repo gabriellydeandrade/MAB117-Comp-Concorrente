@@ -344,7 +344,7 @@ int main(int argc, char *argv[]){
 
     fclose(arquivo);
 
-    printf("Maior sequẽncia de valores idênticos: %lld %lld %d\n", valores_identicos.pos_inicial, valores_identicos.tamanho, valores_identicos.valor);
+    printf("Maior sequência de valores idênticos: %lld %lld %d\n", valores_identicos.pos_inicial, valores_identicos.tamanho, valores_identicos.valor);
     printf("Quantidade de triplas: %lld \n", qtd_triplas);
     printf("Quantidade de ocorrências da sequência <012345>: %lld \n", qtd_seq_1_a_5);
 
