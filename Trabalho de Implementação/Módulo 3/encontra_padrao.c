@@ -26,7 +26,21 @@ char *status_buffer;
 // status=3: faltam 3 threads para leitura
 
 pthread_mutex_t *locks;
-pthread_cond_t cond_escrita, cond_leitura;
+pthread_cond_t cond_escrita, cond_leitura, cond_barreira;
+
+int qtd_threads_chegaram=0;
+
+void barreira(int pos_leitura) {
+    pthread_mutex_lock(locks+pos_leitura);
+    if (qtd_threads_chegaram == 2) {
+        pthread_cond_broadcast(&cond_barreira);
+        qtd_threads_chegaram=0;
+    } else {
+        qtd_threads_chegaram++;
+        pthread_cond_wait(&cond_barreira, locks+pos_leitura);
+    }
+    pthread_mutex_unlock(locks+pos_leitura);
+}
 
 
 void *insere_buffer(void *args){
@@ -37,7 +51,7 @@ void *insere_buffer(void *args){
         // Entrada na escrita
         pthread_mutex_lock(locks+pos_escrita);
 
-        while(status_buffer[pos_escrita] != 0){ // Enquanto faltar threads para leitura
+        while(status_buffer[pos_escrita] > 0){ // Enquanto faltar threads para leitura
             printf("Escrita bloqueada, pos_escrita=%d\n", pos_escrita);
             pthread_cond_wait(&cond_escrita, locks+pos_escrita);
             printf("Escrita desbloqueada, pos_escrita=%d\n", pos_escrita);
@@ -56,7 +70,6 @@ void *insere_buffer(void *args){
 
         }
 
-        printf("Escrita escreveu, pos_escrita=%d, qtd_inteiros_lidos=%lld, qtd_faltante=%lld\n", pos_escrita, qtd_inteiros_lidos, qtd_inteiros_faltantes);
 
         qtd_inteiros_faltantes = qtd_inteiros_faltantes-qtd_inteiros_lidos;
 
@@ -65,13 +78,14 @@ void *insere_buffer(void *args){
         pthread_mutex_lock(locks+pos_escrita);
         status_buffer[pos_escrita] = 3;
         pthread_mutex_unlock(locks+pos_escrita);
+        printf("Escrita escreveu, pos_escrita=%d, qtd_inteiros_lidos=%lld, qtd_faltante=%lld, status_buffer=%d\n", pos_escrita, qtd_inteiros_lidos, qtd_inteiros_faltantes, status_buffer[pos_escrita]);
 
         pos_escrita = (pos_escrita + 1) % tamanho_buffer;
 
         pthread_cond_broadcast(&cond_leitura);
     }
 
-    return NULL;
+    pthread_exit(NULL);
 }
 
 
@@ -137,13 +151,17 @@ void *padrao_a(void *args){
         printf("Padrao a leu pos_leitura=%d, status=%d\n", pos_leitura, status_buffer[pos_leitura]);
 
         if (status_buffer[pos_leitura] == 0) pthread_cond_signal(&cond_escrita);
-        pthread_mutex_unlock(locks+pos_leitura);
 
         if (pos_leitura==ultimo_bloco){
+            pthread_mutex_unlock(locks+pos_leitura);
             break;
         }
+        pthread_mutex_unlock(locks+pos_leitura);
 
         pos_leitura = (pos_leitura + 1) % tamanho_buffer;
+        if (pos_leitura == 0){
+            barreira(pos_leitura);
+        }
     }
 
     if (tamanho_temp > tamanho_seq){
@@ -214,13 +232,18 @@ void *padrao_b(void *args){
         printf("Padrao b leu pos_leitura=%d, status=%d\n", pos_leitura, status_buffer[pos_leitura]);
 
         if (status_buffer[pos_leitura] == 0) pthread_cond_signal(&cond_escrita);
-        pthread_mutex_unlock(locks+pos_leitura);
 
         if (pos_leitura==ultimo_bloco){
+            pthread_mutex_unlock(locks+pos_leitura);
             break;
         }
 
+        pthread_mutex_unlock(locks+pos_leitura);
+
         pos_leitura = (pos_leitura + 1) % tamanho_buffer;
+        if (pos_leitura == 0){
+            barreira(pos_leitura);
+        }
     }
     pthread_exit(NULL);
 
@@ -277,13 +300,18 @@ void *padrao_c(void *args){
         printf("Padrao c leu pos_leitura=%d, status=%d\n", pos_leitura, status_buffer[pos_leitura]);
 
         if (status_buffer[pos_leitura] == 0) pthread_cond_signal(&cond_escrita);
-        pthread_mutex_unlock(locks+pos_leitura);
 
         if (pos_leitura==ultimo_bloco){
+            pthread_mutex_unlock(locks+pos_leitura);
             break;
         }
 
+        pthread_mutex_unlock(locks+pos_leitura);
+
         pos_leitura = (pos_leitura + 1) % tamanho_buffer;
+        if (pos_leitura == 0){
+            barreira(pos_leitura);
+        }
     }
 
     pthread_exit(NULL);
