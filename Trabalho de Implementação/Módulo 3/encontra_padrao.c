@@ -1,16 +1,11 @@
 /*
- * Ler a entrada pro argc e argv
  * Fazer casos de teste
- * Mudar o gera_arquivo para o primeiro termo ser long long int
  * */
 
 
 #include <stdio.h>
 #include <pthread.h>
 #include <stdlib.h>
-
-#define N 50
-#define M 10
 
 typedef struct retorno_padrao_a{
     long long int pos_inicial, tamanho;
@@ -49,7 +44,6 @@ void *insere_buffer(void *args){
 
         // Escrita
 
-
         if (qtd_inteiros_faltantes > tamanho_bloco){
             qtd_inteiros_lidos = fread(buffer+(pos_escrita*tamanho_bloco), sizeof(int), tamanho_bloco, arquivo);
         } else {
@@ -60,7 +54,6 @@ void *insere_buffer(void *args){
         }
 
         qtd_inteiros_faltantes = qtd_inteiros_faltantes-qtd_inteiros_lidos;
-
 
         // Saida da escrita
 
@@ -153,8 +146,6 @@ void *padrao_a(void *args){
     valores_identicos.pos_inicial = pos_inicial;
     valores_identicos.tamanho = tamanho_seq;
     valores_identicos.valor = valor;
-
-    printf("Padrao a saiu \n");
 
     return NULL;
 }
@@ -286,11 +277,14 @@ int main(int argc, char *argv[]){
     pthread_t thread_id[4];
     char *nome_arquivo;
 
-    // TODO validar a qtd de argumentos e passar M e N
-    nome_arquivo = argv[1];
+    if (argc < 4){
+        fprintf(stderr,"Informe os parâmetros: <nome arquivo> <tamanho do bloco> <tamanho do buffer> para o programa %s\n", argv[0]);
+        return 1;
+    }
 
-    tamanho_buffer = M;
-    tamanho_bloco = N;
+    nome_arquivo = argv[1];
+    tamanho_buffer = atoi(argv[2]);
+    tamanho_bloco = atoi(argv[3]);
 
     buffer = malloc(sizeof(int) * tamanho_buffer * tamanho_bloco);
     if (!buffer){
