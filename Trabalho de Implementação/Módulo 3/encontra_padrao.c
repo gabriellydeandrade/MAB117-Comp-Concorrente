@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include "timer.h"
 
 typedef struct retorno_padrao_a{
     long long int pos_inicial, tamanho;
@@ -147,7 +148,7 @@ void *padrao_a(void *args){
     valores_identicos.tamanho = tamanho_seq;
     valores_identicos.valor = valor;
 
-    return NULL;
+    pthread_exit(NULL);
 }
 
 void *padrao_b(void *args){
@@ -209,7 +210,7 @@ void *padrao_b(void *args){
 
         pos_leitura = (pos_leitura + 1) % tamanho_buffer;
     }
-    return NULL;
+    pthread_exit(NULL);
 
 }
 
@@ -269,11 +270,12 @@ void *padrao_c(void *args){
         pos_leitura = (pos_leitura + 1) % tamanho_buffer;
     }
 
-    return NULL;
+    pthread_exit(NULL);
 }
 
 
 int main(int argc, char *argv[]){
+    double tempo_inicio, tempo_fim, tempo_delta;
     pthread_t thread_id[4];
     char *nome_arquivo;
 
@@ -285,6 +287,9 @@ int main(int argc, char *argv[]){
     nome_arquivo = argv[1];
     tamanho_buffer = atoi(argv[2]);
     tamanho_bloco = atoi(argv[3]);
+
+    // Adiciona tomada de tempo
+    GET_TIME(tempo_inicio);
 
     buffer = malloc(sizeof(int) * tamanho_buffer * tamanho_bloco);
     if (!buffer){
@@ -343,7 +348,10 @@ int main(int argc, char *argv[]){
     printf("Quantidade de triplas: %lld \n", qtd_triplas);
     printf("Quantidade de ocorrências da sequência <012345>: %lld \n", qtd_seq_1_a_5);
 
-    pthread_exit(NULL);
+    GET_TIME(tempo_fim);
+    tempo_delta = tempo_fim - tempo_inicio;
+    printf("Tempo total: %lf\n", tempo_delta);
+
     return 0;
 
 }
