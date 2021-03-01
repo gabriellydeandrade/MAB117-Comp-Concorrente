@@ -31,6 +31,10 @@ pthread_cond_t cond_escrita, cond_leitura, cond_barreira;
 int qtd_threads_chegaram=0;
 
 void barreira(int pos_leitura) {
+    /*
+     * Força as threads leitores esperarem as demais caso a mesma linha seja utilizada novamente pelo escritor.
+     */
+
     pthread_mutex_lock(locks+pos_leitura);
     if (qtd_threads_chegaram == 2) {
         pthread_cond_broadcast(&cond_barreira);
@@ -48,10 +52,13 @@ void *insere_buffer(void *args){
     fread(&qtd_inteiros_faltantes, sizeof(long long int), 1, arquivo);
 
     while(qtd_inteiros_faltantes > 0){
+
         // Entrada na escrita
+
         pthread_mutex_lock(locks+pos_escrita);
 
-        while(status_buffer[pos_escrita] > 0){ // Enquanto faltar threads para leitura
+        while(status_buffer[pos_escrita] > 0){
+            // Espera enquanto faltar threads para leitura
             pthread_cond_wait(&cond_escrita, locks+pos_escrita);
         }
 
@@ -85,12 +92,11 @@ void *insere_buffer(void *args){
     pthread_exit(NULL);
 }
 
-
 void *padrao_a(void *args){
     /*
      * Busca a maior sequência de valores idênticos.
      * Informando a posição, tamanho da sequência e valor da sequência
-    */
+     */
 
     int pos_leitura=0, tamanho=tamanho_bloco;
 
@@ -101,9 +107,11 @@ void *padrao_a(void *args){
     while(1){
 
         // Entrada para leitura
+
         pthread_mutex_lock(locks+pos_leitura);
 
-        while(status_buffer[pos_leitura] == 0){ // Enquanto a linha estiver vazia
+        while(status_buffer[pos_leitura] == 0){
+            // Espera enquanto a linha estiver vazia
             pthread_cond_wait(&cond_leitura, locks+pos_leitura);
         }
 
@@ -140,6 +148,7 @@ void *padrao_a(void *args){
         }
 
         // Saída da leitura
+
         pthread_mutex_lock(locks+pos_leitura);
         status_buffer[pos_leitura]--;
 
@@ -173,7 +182,7 @@ void *padrao_a(void *args){
 void *padrao_b(void *args){
     /*
      * Busca a quantidade de triplas.
-    */
+     */
 
     int pos_leitura=0, tamanho=tamanho_bloco;
 
@@ -182,6 +191,7 @@ void *padrao_b(void *args){
     while(1){
 
         // Entrada para leitura
+
         pthread_mutex_lock(locks+pos_leitura);
 
         while(status_buffer[pos_leitura] == 0){ // Enquanto a linha estiver vazia
@@ -217,6 +227,7 @@ void *padrao_b(void *args){
         }
 
         // Saída da leitura
+
         pthread_mutex_lock(locks+pos_leitura);
         status_buffer[pos_leitura]--;
 
@@ -240,8 +251,8 @@ void *padrao_b(void *args){
 
 void *padrao_c(void *args){
     /*
-     * Quantidade de ocorrências da sequência <012345>.
-    */
+     * Busca a quantidade de ocorrências da sequência <012345>.
+     */
 
     int pos_leitura=0, tamanho=tamanho_bloco;
 
@@ -250,6 +261,7 @@ void *padrao_c(void *args){
     while(1){
 
         // Entrada para leitura
+
         pthread_mutex_lock(locks+pos_leitura);
 
         while(status_buffer[pos_leitura] == 0){ // Enquanto a linha estiver vazia
@@ -281,6 +293,7 @@ void *padrao_c(void *args){
         }
 
         // Saída da leitura
+
         pthread_mutex_lock(locks+pos_leitura);
         status_buffer[pos_leitura]--;
 
@@ -294,6 +307,7 @@ void *padrao_c(void *args){
         pthread_mutex_unlock(locks+pos_leitura);
 
         pos_leitura = (pos_leitura + 1) % tamanho_buffer;
+
         if (pos_leitura == 0){
             barreira(pos_leitura);
         }
@@ -318,7 +332,8 @@ int main(int argc, char *argv[]){
     tamanho_bloco = atoi(argv[3]);
 
     // Adiciona tomada de tempo
-    GET_TIME(tempo_inicio);
+
+    GET_TIME(tempo_inicio)
 
     buffer = malloc(sizeof(int) * tamanho_buffer * tamanho_bloco);
     if (!buffer){
@@ -377,7 +392,9 @@ int main(int argc, char *argv[]){
     printf("Quantidade de triplas: %lld \n", qtd_triplas);
     printf("Quantidade de ocorrências da sequência <012345>: %lld \n", qtd_seq_1_a_5);
 
-    GET_TIME(tempo_fim);
+    // Fim da tomada de tempo
+
+    GET_TIME(tempo_fim)
     tempo_delta = tempo_fim - tempo_inicio;
     printf("Tempo total: %lf\n", tempo_delta);
 
